@@ -210,6 +210,9 @@ emit_meson_cross() {
 # emit_cmake_toolchain <file> : write a cmake toolchain file for the current toolchain.
 emit_cmake_toolchain() {
   local f="$1"
+  # Newer clang promotes implicit function declarations to errors; relax it so
+  # older sources (e.g. libxml2's getentropy use) still cross-compile.
+  local relax="-Wno-error=implicit-function-declaration"
   {
     echo "set(CMAKE_SYSTEM_NAME $CMAKE_SYSTEM_NAME)"
     echo "set(CMAKE_SYSTEM_PROCESSOR $CMAKE_SYSTEM_PROCESSOR)"
@@ -220,11 +223,11 @@ emit_cmake_toolchain() {
     if [ "${APPLE:-0}" = 1 ]; then
       echo "set(CMAKE_OSX_SYSROOT $SYSROOT)"
       echo "set(CMAKE_OSX_ARCHITECTURES $ARCH)"
-      echo "set(CMAKE_C_FLAGS_INIT \"-target $APPLE_TARGET $APPLE_MIN\")"
+      echo "set(CMAKE_C_FLAGS_INIT \"-target $APPLE_TARGET $APPLE_MIN $relax\")"
       echo "set(CMAKE_CXX_FLAGS_INIT \"-target $APPLE_TARGET $APPLE_MIN\")"
     else
       [ -n "$SYSROOT" ] && echo "set(CMAKE_SYSROOT $SYSROOT)"
-      [ -n "$TOOL_CFLAGS" ] && echo "set(CMAKE_C_FLAGS_INIT \"$TOOL_CFLAGS\")"
+      echo "set(CMAKE_C_FLAGS_INIT \"$TOOL_CFLAGS $relax\")"
       [ -n "$TOOL_CFLAGS" ] && echo "set(CMAKE_CXX_FLAGS_INIT \"$TOOL_CFLAGS\")"
     fi
     echo "set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)"
