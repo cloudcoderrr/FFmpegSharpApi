@@ -186,8 +186,11 @@ _tc_apple() {
   # SecItemImport/SecExternalFormat (Security/SecImportExport.h) are macOS-only.
   # On Mac Catalyst FFmpeg's configure detects them (macOS-derived headers) but
   # the compile fails under macabi availability, so drop SecureTransport there.
+  # VideoToolbox's buffer attributes use kCVPixelBufferOpenGLESCompatibilityKey
+  # via TARGET_OS_IPHONE, which is unavailable on macabi, so disable HW accel on
+  # Catalyst (software decode/encode still works).
   case "$FAMILY" in
-    maccatalyst) FF_EXTRA_CONFIGURE+=(--disable-securetransport) ;;
+    maccatalyst) FF_EXTRA_CONFIGURE+=(--disable-securetransport --disable-videotoolbox) ;;
   esac
 }
 
