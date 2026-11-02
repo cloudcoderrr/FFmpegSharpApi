@@ -25,6 +25,7 @@ configure_toolchain() {
   FF_EXTRA_CONFIGURE=()
   MESON_SYSTEM=""; MESON_CPU_FAMILY=""; MESON_CPU=""
   CMAKE_SYSTEM_NAME=""; CMAKE_SYSTEM_PROCESSOR=""
+  APPLE=0; APPLE_TARGET=""; APPLE_MIN=""
 
   case "$RID" in
     win-x64)   FAMILY=windows; ARCH=x86_64; FF_ARCH=x86_64; WIN_TRIPLE=x86_64-w64-mingw32 ;;
@@ -134,7 +135,7 @@ _tc_android() {
   HOST_TRIPLE="$(basename "$CC" | sed "s/${api}-clang\$//")"
   FF_TARGET_OS=android
   FF_CROSS_COMPILE=1
-  MESON_SYSTEM=android; CMAKE_SYSTEM_NAME=Android
+  MESON_SYSTEM=android; CMAKE_SYSTEM_NAME=Linux
   FF_EXTRA_CONFIGURE+=(--cc="$CC" --cxx="$CXX" --ar="$AR" --ranlib="$RANLIB"
     --strip="$STRIP" --nm="$NM" --sysroot="$SYSROOT")
 }
@@ -161,14 +162,15 @@ _tc_apple() {
       MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=Darwin ;;
     maccatalyst)
       target="${ARCH}-apple-ios14.0-macabi"
-      MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=Darwin ;;
+      MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=Darwin; APPLE=1 ;;
     ios)
       target="${ARCH}-apple-ios13.0"
-      MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=iOS ;;
+      MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=Darwin; APPLE=1 ;;
     iossim)
       target="${ARCH}-apple-ios13.0-simulator"
-      MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=iOS ;;
+      MESON_SYSTEM=darwin; CMAKE_SYSTEM_NAME=Darwin; APPLE=1 ;;
   esac
+  APPLE_TARGET="$target"; APPLE_MIN="$minver"
   HOST_TRIPLE="${ARCH}-apple-darwin"
   TOOL_CFLAGS="-arch $ARCH -target $target -isysroot $SYSROOT $minver"
   TOOL_LDFLAGS="-arch $ARCH -target $target -isysroot $SYSROOT $minver"
@@ -215,9 +217,16 @@ emit_cmake_toolchain() {
     echo "set(CMAKE_CXX_COMPILER ${CXX%% *})"
     echo "set(CMAKE_AR $AR)"
     echo "set(CMAKE_RANLIB $RANLIB)"
-    [ -n "$SYSROOT" ] && echo "set(CMAKE_SYSROOT $SYSROOT)"
-    [ -n "$TOOL_CFLAGS" ] && echo "set(CMAKE_C_FLAGS_INIT \"$TOOL_CFLAGS\")"
-    [ -n "$TOOL_CFLAGS" ] && echo "set(CMAKE_CXX_FLAGS_INIT \"$TOOL_CFLAGS\")"
+    if [ "${APPLE:-0}" = 1 ]; then
+      echo "set(CMAKE_OSX_SYSROOT $SYSROOT)"
+      echo "set(CMAKE_OSX_ARCHITECTURES $ARCH)"
+      echo "set(CMAKE_C_FLAGS_INIT \"-target $APPLE_TARGET $APPLE_MIN\")"
+      echo "set(CMAKE_CXX_FLAGS_INIT \"-target $APPLE_TARGET $APPLE_MIN\")"
+    else
+      [ -n "$SYSROOT" ] && echo "set(CMAKE_SYSROOT $SYSROOT)"
+      [ -n "$TOOL_CFLAGS" ] && echo "set(CMAKE_C_FLAGS_INIT \"$TOOL_CFLAGS\")"
+      [ -n "$TOOL_CFLAGS" ] && echo "set(CMAKE_CXX_FLAGS_INIT \"$TOOL_CFLAGS\")"
+    fi
     echo "set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)"
     echo "set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)"
     echo "set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)"

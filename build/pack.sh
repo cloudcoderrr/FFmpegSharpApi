@@ -19,13 +19,14 @@ mkdir -p "$OUT"
 
 log() { printf '\033[1;35m[pack]\033[0m %s\n' "$*" >&2; }
 
-# rid -> packaging family folder (desktop only; mobile is packaged separately).
+# rid -> packaging family folder (desktop + android use runtimes/; apple-mobile is separate).
 family_of() {
   case "$1" in
-    win-*)   echo Windows ;;
-    linux-*) echo Linux ;;
-    osx-*)   echo macOS ;;
-    *)       echo "" ;;
+    win-*)     echo Windows ;;
+    linux-*)   echo Linux ;;
+    osx-*)     echo macOS ;;
+    android-*) echo Android ;;
+    *)         echo "" ;;
   esac
 }
 
@@ -70,7 +71,7 @@ pack_native() {
     any=1
   done
 
-  for family in Windows Linux macOS; do
+  for family in Windows Linux macOS Android; do
     [ -d "$stage/$family" ] && pack_native_family "$license" "$family" "$stage"
   done
 

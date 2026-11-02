@@ -118,7 +118,7 @@ _dep_x265() {
   case "$ARCH" in arm|arm64) extra+=(-DCROSS_COMPILE_ARM=ON -DENABLE_ASSEMBLY=OFF) ;; esac
   # shellcheck disable=SC2046
   run cmake -S "$WORK/x265/source" -B "$WORK/x265/_build" -G Ninja \
-    -DCMAKE_INSTALL_PREFIX="$PREFIX" $(_cmake_toolchain_arg) \
+    -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $(_cmake_toolchain_arg) \
     -DCMAKE_BUILD_TYPE=Release -DENABLE_SHARED=OFF -DENABLE_CLI=OFF \
     -DENABLE_PIC=ON "${extra[@]}"
   run cmake --build "$WORK/x265/_build" -j"$(ncpu)"
