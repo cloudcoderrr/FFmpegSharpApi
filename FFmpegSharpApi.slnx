@@ -3,6 +3,7 @@
     <Project Path="src/FFmpegSharpApi/FFmpegSharpApi.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/FFmpegSharpApi.Tests.Avalonia/FFmpegSharpApi.Tests.Avalonia.csproj" />
     <Project Path="Tests/FFmpegSharpApi.Tests.Core/FFmpegSharpApi.Tests.Core.csproj" />
   </Folder>
 </Solution>

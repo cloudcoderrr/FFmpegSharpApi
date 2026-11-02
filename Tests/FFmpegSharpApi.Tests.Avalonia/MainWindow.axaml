@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="FFmpegSharpApi.Tests.Avalonia.MainWindow"
+        Width="960" Height="680"
+        Title="FFmpegSharpApi — Desktop Tests">
+  <DockPanel Margin="10">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10">
+      <Button x:Name="RunButton" Content="Run all tests" Click="OnRunClick" />
+      <TextBlock x:Name="SummaryText" VerticalAlignment="Center" Text="Ready." FontWeight="SemiBold" />
+    </StackPanel>
+    <TextBlock x:Name="BuildInfoText" DockPanel.Dock="Top" FontSize="12" Opacity="0.75" Margin="0,6,0,6" TextWrapping="Wrap" />
+    <ListBox x:Name="ResultsList" FontFamily="Cascadia Code,Consolas,monospace" />
+  </DockPanel>
+</Window>
