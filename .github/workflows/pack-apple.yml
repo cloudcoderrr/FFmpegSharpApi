@@ -1,0 +1,66 @@
+name: pack-apple
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        default: "9.0.1-preview.1"
+      license:
+        type: choice
+        options: [lgpl, gpl]
+        default: lgpl
+
+permissions:
+  contents: read
+
+jobs:
+  native-apple:
+    uses: ./.github/workflows/native-apple.yml
+    with:
+      license: ${{ inputs.license }}
+      rids: "ios-arm64 iossimulator-arm64 iossimulator-x64 maccatalyst-arm64 maccatalyst-x64"
+
+  pack:
+    needs: native-apple
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Download Apple native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: native-artifacts
+          pattern: ffmpeg-${{ inputs.license }}-*
+
+      - name: Arrange native binaries
+        run: |
+          mkdir -p artifacts/native
+          find native-artifacts -name '*.tar.gz' -exec tar -C artifacts/native -xzf {} \;
+          find artifacts/native -maxdepth 2 -type d | sort
+
+      - name: Build FFmpeg.xcframework
+        run: |
+          chmod +x build/apple-xcframework.sh
+          NATIVE_DIR="$PWD/artifacts/native" OUT_DIR="$PWD/artifacts/apple" build/apple-xcframework.sh ${{ inputs.license }}
+
+      - name: Pack Apple native package
+        run: |
+          suffix=""; lic="LGPL-3.0-or-later"
+          if [ "${{ inputs.license }}" = "gpl" ]; then suffix=".GPL"; lic="GPL-3.0-or-later"; fi
+          dotnet pack packaging/FFmpegSharpApi.Native.Apple/FFmpegSharpApi.Native.Apple.csproj -c Release \
+            -o artifacts/packages \
+            -p:PackageId="FFmpegSharpApi.Native.Apple$suffix" \
+            -p:PackageVersion="${{ inputs.version }}" \
+            -p:PackageLicenseExpression="$lic" \
+            -p:"Description=Native FFmpeg 9.0 for iOS and Mac Catalyst (static xcframework)." \
+            -p:XcframeworkDir="$PWD/artifacts/apple/${{ inputs.license }}/FFmpeg.xcframework"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apple-nupkg-${{ inputs.license }}
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error

@@ -178,6 +178,11 @@ _tc_apple() {
   FF_CROSS_COMPILE=1
   FF_EXTRA_CONFIGURE+=(--cc="$CC" --cxx="$CXX" --as="$CC" --sysroot="$SYSROOT"
     --extra-cflags="$TOOL_CFLAGS" --extra-cxxflags="$TOOL_CFLAGS" --extra-ldflags="$TOOL_LDFLAGS")
+  # AppKit/CoreImage GL filters are unavailable on Catalyst/iOS; FFmpeg wrongly
+  # enables them against the macOS SDK for Catalyst, so disable them explicitly.
+  case "$FAMILY" in
+    maccatalyst|ios|iossim) FF_EXTRA_CONFIGURE+=(--disable-appkit) ;;
+  esac
 }
 
 # emit_meson_cross <file> : write a meson cross file for the current toolchain.
