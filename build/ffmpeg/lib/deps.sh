@@ -105,7 +105,7 @@ _dep_x264() {
     CC="$CC" CXX="$CXX" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
     CFLAGS="$TOOL_CFLAGS" LDFLAGS="$TOOL_LDFLAGS" \
     ./configure --prefix="$PREFIX" --enable-static --enable-pic \
-      --disable-cli --disable-opencl "${hostflag[@]}" "${crossflag[@]}"
+      --disable-cli --disable-opencl ${hostflag[@]+"${hostflag[@]}"} ${crossflag[@]+"${crossflag[@]}"}
     make -j"$(ncpu)"
     make install )
 }
@@ -122,7 +122,7 @@ _dep_x265() {
   run cmake -S "$WORK/x265/source" -B "$WORK/x265/_build" -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $(_cmake_toolchain_arg) \
     -DCMAKE_BUILD_TYPE=Release -DENABLE_SHARED=OFF -DENABLE_CLI=OFF \
-    -DENABLE_PIC=ON "${extra[@]}"
+    -DENABLE_PIC=ON ${extra[@]+"${extra[@]}"}
   run cmake --build "$WORK/x265/_build" -j"$(ncpu)"
   run cmake --install "$WORK/x265/_build"
   # FFmpeg discovers x265 via pkg-config; ensure the .pc advertises the stdc++ dep.
