@@ -183,6 +183,12 @@ _tc_apple() {
   case "$FAMILY" in
     maccatalyst|ios|iossim) FF_EXTRA_CONFIGURE+=(--disable-appkit) ;;
   esac
+  # SecItemImport/SecExternalFormat (Security/SecImportExport.h) are macOS-only.
+  # On Mac Catalyst FFmpeg's configure detects them (macOS-derived headers) but
+  # the compile fails under macabi availability, so drop SecureTransport there.
+  case "$FAMILY" in
+    maccatalyst) FF_EXTRA_CONFIGURE+=(--disable-securetransport) ;;
+  esac
 }
 
 # emit_meson_cross <file> : write a meson cross file for the current toolchain.
