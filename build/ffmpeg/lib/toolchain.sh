@@ -196,10 +196,12 @@ emit_meson_cross() {
     echo "cpu_family = '$MESON_CPU_FAMILY'"
     echo "cpu = '$MESON_CPU'"
     echo "endian = 'little'"
-    echo ""
-    echo "[built-in options]"
-    printf "c_args = ['%s']\n" "$(echo "$extra_c" | sed "s/ /','/g")"
-    printf "c_link_args = ['%s']\n" "$(echo "$TOOL_LDFLAGS" | sed "s/ /','/g")"
+    if [ -n "$TOOL_CFLAGS" ] || [ -n "$TOOL_LDFLAGS" ]; then
+      echo ""
+      echo "[built-in options]"
+      [ -n "$TOOL_CFLAGS" ] && printf "c_args = ['%s']\n" "$(echo "$TOOL_CFLAGS" | sed "s/ /','/g")"
+      [ -n "$TOOL_LDFLAGS" ] && printf "c_link_args = ['%s']\n" "$(echo "$TOOL_LDFLAGS" | sed "s/ /','/g")"
+    fi
   } > "$f"
 }
 

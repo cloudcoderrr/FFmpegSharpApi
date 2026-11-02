@@ -18,7 +18,7 @@ source "$HERE/lib/common.sh"
 # shellcheck source=versions.env
 source "$HERE/versions.env"
 
-RID=""; LICENSE="lgpl"; DEPS=""
+RID=""; LICENSE="lgpl"; DEPS=""; DEPS_OVERRIDE=0
 WORK="${GITHUB_WORKSPACE:-$REPO_ROOT}/build-work"
 OUTDIR="$REPO_ROOT/artifacts/native"
 
@@ -26,7 +26,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --rid)     RID="$2"; shift 2 ;;
     --license) LICENSE="$2"; shift 2 ;;
-    --deps)    DEPS="$2"; shift 2 ;;
+    --deps)    DEPS="$2"; DEPS_OVERRIDE=1; shift 2 ;;
     --work)    WORK="$2"; shift 2 ;;
     --out)     OUTDIR="$2"; shift 2 ;;
     *) die "Unknown argument: $1" ;;
@@ -35,11 +35,6 @@ done
 
 [ -n "$RID" ] || die "--rid is required"
 case "$LICENSE" in lgpl|gpl) ;; *) die "--license must be lgpl or gpl" ;; esac
-
-# GPL-only encoders are implied by the GPL flavour unless the caller overrode --deps.
-if [ "$LICENSE" = "gpl" ] && [ -z "$DEPS" ]; then
-  DEPS="dav1d libxml2 x264 x265"
-fi
 
 export RID
 # shellcheck source=lib/toolchain.sh
@@ -51,9 +46,18 @@ WORK="$WORK/$LICENSE/$RID"
 PREFIX="$WORK/prefix"
 mkdir -p "$PREFIX"
 
-log "=== FFmpeg $FFMPEG_REF | rid=$RID | license=$LICENSE | deps='${DEPS:-none}' ==="
+log "=== FFmpeg $FFMPEG_REF | rid=$RID | license=$LICENSE ==="
 configure_toolchain
-log "family=$FAMILY arch=$ARCH linkage=$LINKAGE host=$HOST_TRIPLE"
+
+# Default external libraries for full fixture coverage unless overridden with --deps.
+if [ "$DEPS_OVERRIDE" -eq 0 ]; then
+  DEPS="dav1d libxml2"
+  # Windows' llvm-mingw sysroot has no zlib; build it so PNG and zlib features work.
+  [ "$FAMILY" = "windows" ] && DEPS="zlib $DEPS"
+  [ "$LICENSE" = "gpl" ] && DEPS="$DEPS x264 x265"
+fi
+
+log "family=$FAMILY arch=$ARCH linkage=$LINKAGE host=$HOST_TRIPLE deps='${DEPS:-none}'"
 
 export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
 export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig"
@@ -72,6 +76,7 @@ cfg=(--prefix="$PREFIX"
   --disable-doc --disable-debug --disable-ffplay --disable-sdl2
   --enable-version3
   --pkg-config=pkg-config --pkg-config-flags=--static
+  --extra-cflags="-I$PREFIX/include" --extra-ldflags="-L$PREFIX/lib"
   --target-os="$FF_TARGET_OS" --arch="$FF_ARCH")
 [ "$FF_CROSS_COMPILE" = 1 ] && cfg+=(--enable-cross-compile)
 [ -n "$FF_CROSS_PREFIX" ] && cfg+=(--cross-prefix="$FF_CROSS_PREFIX")
