@@ -43,8 +43,13 @@ jobs:
       license: ${{ inputs.licenses || 'lgpl' }}
       rids: "osx-arm64 osx-x64"
 
+  native-android:
+    uses: ./.github/workflows/native-android.yml
+    with:
+      license: ${{ inputs.licenses || 'lgpl' }}
+
   pack:
-    needs: [native-linux, native-windows, native-apple]
+    needs: [native-linux, native-windows, native-apple, native-android]
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.meta.outputs.version }}

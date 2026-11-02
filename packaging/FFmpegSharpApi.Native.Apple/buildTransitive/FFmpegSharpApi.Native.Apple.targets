@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    Links the bundled static FFmpeg.xcframework into iOS and Mac Catalyst app heads.
+    ForceLoad ensures all FFmpeg symbols are available for the __Internal P/Invoke used
+    by the statically linked bindings.
+  -->
+  <ItemGroup Condition="'$([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework)))' == 'ios' Or '$([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework)))' == 'maccatalyst'">
+    <NativeReference Include="$(MSBuildThisFileDirectory)..\lib\FFmpeg.xcframework">
+      <Kind>Static</Kind>
+      <ForceLoad>True</ForceLoad>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+</Project>

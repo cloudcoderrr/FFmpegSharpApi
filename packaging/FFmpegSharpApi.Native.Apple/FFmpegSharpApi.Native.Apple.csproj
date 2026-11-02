@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Apple (iOS device + simulator + Mac Catalyst) native package. Delivers a single
+    static FFmpeg.xcframework linked via NativeReference. Invoked by build/pack.sh with:
+      PackageId, PackageLicenseExpression, PackageVersion, XcframeworkDir
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);NU5128;NU5100</NoWarn>
+    <PackageId Condition="'$(PackageId)' == ''">FFmpegSharpApi.Native.Apple</PackageId>
+    <XcframeworkDir Condition="'$(XcframeworkDir)' == ''">$(MSBuildProjectDirectory)/FFmpeg.xcframework</XcframeworkDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(XcframeworkDir)/**/*" Pack="true" PackagePath="lib/FFmpeg.xcframework/" Condition="Exists('$(XcframeworkDir)')" />
+    <None Include="buildTransitive/FFmpegSharpApi.Native.Apple.targets" Pack="true" PackagePath="buildTransitive/" />
+    <None Include="buildTransitive/FFmpegSharpApi.Native.Apple.targets" Pack="true" PackagePath="build/" />
+    <None Include="$(MSBuildProjectDirectory)/../_._" Pack="true" PackagePath="lib/netstandard2.0/_._" />
+  </ItemGroup>
+
+</Project>
