@@ -91,6 +91,9 @@ public static unsafe class MediaProbe
                 result.Streams.Add(probe);
             }
 
+            // Still images and some raw streams expose no dimensions until a frame is decoded.
+            FillMissingVideoGeometry(path, inputArgs, result);
+
             result.Success = true;
             return result;
         }
@@ -100,6 +103,20 @@ public static unsafe class MediaProbe
                 ffmpeg.av_dict_free(&options);
             if (fmt != null)
                 ffmpeg.avformat_close_input(&fmt);
+        }
+    }
+
+    private static void FillMissingVideoGeometry(string path, IReadOnlyList<string>? inputArgs, ProbeResult result)
+    {
+        var target = result.Streams.FirstOrDefault(s => s.CodecType == "video" && s.Width <= 0);
+        if (target is null)
+            return;
+
+        if (MediaDecoder.TryGetVideoGeometry(path, inputArgs, out var width, out var height, out var pixFmt))
+        {
+            target.Width = width;
+            target.Height = height;
+            target.PixFmt = pixFmt;
         }
     }
 

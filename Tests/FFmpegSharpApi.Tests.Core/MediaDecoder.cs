@@ -18,6 +18,9 @@ public static unsafe class MediaDecoder
 {
     private const int SwsBilinear = 2;
 
+    /// <summary>Diagnostic describing why the last snapshot attempt failed.</summary>
+    public static string LastSnapshotError = string.Empty;
+
     /// <summary>Decodes up to <paramref name="maxFrames"/> frames of the best stream of a type.</summary>
     public static DecodeResult Decode(string path, IReadOnlyList<string>? inputArgs, AVMediaType type, int maxFrames)
     {
@@ -39,8 +42,13 @@ public static unsafe class MediaDecoder
 
             AVCodec* codec = null;
             var index = ffmpeg.av_find_best_stream(fmt, type, -1, -1, &codec, 0);
-            if (index == ffmpeg.AVERROR_DECODER_NOT_FOUND) { result.NoDecoder = true; result.ErrorCode = index; return result; }
-            if (index < 0 || codec == null) { result.ErrorCode = index; return result; }
+            if (index == ffmpeg.AVERROR_DECODER_NOT_FOUND || (index >= 0 && codec == null))
+            {
+                result.NoDecoder = true;
+                result.ErrorCode = index;
+                return result;
+            }
+            if (index < 0) { result.ErrorCode = index; return result; }
 
             dec = ffmpeg.avcodec_alloc_context3(codec);
             if (ffmpeg.avcodec_parameters_to_context(dec, fmt->streams[index]->codecpar) < 0) { result.ErrorCode = -1; return result; }
@@ -63,8 +71,77 @@ public static unsafe class MediaDecoder
                 ffmpeg.av_packet_unref(packet);
             }
 
+            // Flush the decoder to emit buffered frames (single-frame and delayed streams).
+            if (result.FramesDecoded < maxFrames)
+            {
+                ffmpeg.avcodec_send_packet(dec, null);
+                while (ffmpeg.avcodec_receive_frame(dec, frame) == 0)
+                {
+                    result.FramesDecoded++;
+                    ffmpeg.av_frame_unref(frame);
+                    if (result.FramesDecoded >= maxFrames) break;
+                }
+            }
+
             result.Success = result.FramesDecoded > 0;
             return result;
+        }
+        finally
+        {
+            if (frame != null) ffmpeg.av_frame_free(&frame);
+            if (packet != null) ffmpeg.av_packet_free(&packet);
+            if (dec != null) ffmpeg.avcodec_free_context(&dec);
+            if (opts != null) ffmpeg.av_dict_free(&opts);
+            if (fmt != null) ffmpeg.avformat_close_input(&fmt);
+        }
+    }
+
+    /// <summary>Decodes a single video frame to obtain the real geometry (for still images etc.).</summary>
+    public static bool TryGetVideoGeometry(string path, IReadOnlyList<string>? inputArgs, out int width, out int height, out string? pixFmt)
+    {
+        width = 0;
+        height = 0;
+        pixFmt = null;
+        AVFormatContext* fmt = null;
+        AVDictionary* opts = null;
+        var inputFormat = Interop.ParseInputArgs(inputArgs, ref opts);
+        AVCodecContext* dec = null;
+        AVPacket* packet = null;
+        AVFrame* frame = null;
+
+        try
+        {
+            if (ffmpeg.avformat_open_input(&fmt, path, inputFormat, &opts) < 0) return false;
+            if (ffmpeg.avformat_find_stream_info(fmt, null) < 0) return false;
+
+            AVCodec* codec = null;
+            var index = ffmpeg.av_find_best_stream(fmt, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+            if (index < 0 || codec == null) return false;
+
+            dec = ffmpeg.avcodec_alloc_context3(codec);
+            ffmpeg.avcodec_parameters_to_context(dec, fmt->streams[index]->codecpar);
+            if (ffmpeg.avcodec_open2(dec, codec, null) < 0) return false;
+
+            packet = ffmpeg.av_packet_alloc();
+            frame = ffmpeg.av_frame_alloc();
+            var got = false;
+            while (!got && ffmpeg.av_read_frame(fmt, packet) >= 0)
+            {
+                if (packet->stream_index == index && ffmpeg.avcodec_send_packet(dec, packet) == 0)
+                    got = ffmpeg.avcodec_receive_frame(dec, frame) == 0;
+                ffmpeg.av_packet_unref(packet);
+            }
+            if (!got)
+            {
+                ffmpeg.avcodec_send_packet(dec, null);
+                got = ffmpeg.avcodec_receive_frame(dec, frame) == 0;
+            }
+            if (!got) return false;
+
+            width = frame->width;
+            height = frame->height;
+            pixFmt = ffmpeg.av_get_pix_fmt_name((AVPixelFormat)frame->format);
+            return true;
         }
         finally
         {
@@ -92,16 +169,17 @@ public static unsafe class MediaDecoder
 
         try
         {
-            if (ffmpeg.avformat_open_input(&fmt, path, inputFormat, &opts) < 0) return false;
-            if (ffmpeg.avformat_find_stream_info(fmt, null) < 0) return false;
+            LastSnapshotError = string.Empty;
+            if (ffmpeg.avformat_open_input(&fmt, path, inputFormat, &opts) < 0) { LastSnapshotError = "open"; return false; }
+            if (ffmpeg.avformat_find_stream_info(fmt, null) < 0) { LastSnapshotError = "stream_info"; return false; }
 
             AVCodec* codec = null;
             var index = ffmpeg.av_find_best_stream(fmt, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
-            if (index < 0 || codec == null) return false;
+            if (index < 0 || codec == null) { LastSnapshotError = "no_stream"; return false; }
 
             dec = ffmpeg.avcodec_alloc_context3(codec);
             ffmpeg.avcodec_parameters_to_context(dec, fmt->streams[index]->codecpar);
-            if (ffmpeg.avcodec_open2(dec, codec, null) < 0) return false;
+            if (ffmpeg.avcodec_open2(dec, codec, null) < 0) { LastSnapshotError = "dec_open"; return false; }
 
             packet = ffmpeg.av_packet_alloc();
             frame = ffmpeg.av_frame_alloc();
@@ -112,9 +190,9 @@ public static unsafe class MediaDecoder
                     got = ffmpeg.avcodec_receive_frame(dec, frame) == 0;
                 ffmpeg.av_packet_unref(packet);
             }
-            if (!got) return false;
+            if (!got) { LastSnapshotError = "no_frame"; return false; }
 
-            int sw = dec->width, sh = dec->height;
+            int sw = frame->width, sh = frame->height;
             int dw = sw, dh = sh;
             if (dw > maxWidth)
             {
@@ -128,26 +206,29 @@ public static unsafe class MediaDecoder
             rgb->format = (int)AVPixelFormat.AV_PIX_FMT_RGB24;
             rgb->width = dw;
             rgb->height = dh;
-            if (ffmpeg.av_frame_get_buffer(rgb, 32) < 0) return false;
+            if (ffmpeg.av_frame_get_buffer(rgb, 32) < 0) { LastSnapshotError = "get_buffer"; return false; }
 
             sws = ffmpeg.sws_getContext(sw, sh, (AVPixelFormat)frame->format, dw, dh,
                 AVPixelFormat.AV_PIX_FMT_RGB24, SwsBilinear, null, null, null);
-            if (sws == null) return false;
+            if (sws == null) { LastSnapshotError = "sws"; return false; }
             ffmpeg.sws_scale(sws, frame->data, frame->linesize, 0, sh, rgb->data, rgb->linesize);
 
             var pngCodec = ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_PNG);
-            if (pngCodec == null) return false;
+            if (pngCodec == null) { LastSnapshotError = "no_png_encoder"; return false; }
             enc = ffmpeg.avcodec_alloc_context3(pngCodec);
             enc->width = dw;
             enc->height = dh;
             enc->pix_fmt = AVPixelFormat.AV_PIX_FMT_RGB24;
             enc->time_base = new AVRational { num = 1, den = 1 };
-            if (ffmpeg.avcodec_open2(enc, pngCodec, null) < 0) return false;
+            if (ffmpeg.avcodec_open2(enc, pngCodec, null) < 0) { LastSnapshotError = "png_open"; return false; }
 
             outPacket = ffmpeg.av_packet_alloc();
             rgb->pts = 0;
-            if (ffmpeg.avcodec_send_frame(enc, rgb) < 0) return false;
-            if (ffmpeg.avcodec_receive_packet(enc, outPacket) < 0) return false;
+            var sendResult = ffmpeg.avcodec_send_frame(enc, rgb);
+            if (sendResult < 0) { LastSnapshotError = "png_send:" + Interop.ErrorString(sendResult); return false; }
+            ffmpeg.avcodec_send_frame(enc, null); // flush so the single frame is emitted
+            var recvResult = ffmpeg.avcodec_receive_packet(enc, outPacket);
+            if (recvResult < 0) { LastSnapshotError = "png_receive:" + Interop.ErrorString(recvResult); return false; }
 
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(outputPng))!);
             using var file = File.Create(outputPng);

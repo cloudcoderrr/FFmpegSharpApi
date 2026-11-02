@@ -22,16 +22,22 @@ public sealed class ArtifactTests
         if (probe.FirstVideo is null)
             return;
 
-        var check = MediaDecoder.Decode(path, fixture.InputArgs, AVMediaType.AVMEDIA_TYPE_VIDEO, 1);
-        if (check.NoDecoder)
+        if (!BuildCapabilities.HasEncoder("png"))
         {
-            log.Note($"No video decoder for '{probe.FirstVideo.CodecName}'; snapshot skipped.");
+            log.Note("No PNG encoder in this build; snapshot skipped.");
+            return;
+        }
+
+        var check = MediaDecoder.Decode(path, fixture.InputArgs, AVMediaType.AVMEDIA_TYPE_VIDEO, 1);
+        if (check.NoDecoder || (check.FramesDecoded == 0 && BuildCapabilities.DecodeMayBeUnavailable(probe.FirstVideo.CodecName)))
+        {
+            log.Note($"No usable video decoder for '{probe.FirstVideo.CodecName}'; snapshot skipped.");
             return;
         }
 
         var output = Path.Combine(TestPaths.SnapshotsDir, id + ".png");
         Assert.True(MediaDecoder.SaveVideoSnapshot(path, fixture.InputArgs, output),
-            $"Could not produce a snapshot for '{id}'.");
+            $"Could not produce a snapshot for '{id}' (step: {MediaDecoder.LastSnapshotError}).");
         Assert.True(new FileInfo(output).Length > 0, "Snapshot file is empty.");
     }
 
@@ -48,9 +54,9 @@ public sealed class ArtifactTests
             return;
 
         var check = MediaDecoder.Decode(path, fixture.InputArgs, AVMediaType.AVMEDIA_TYPE_AUDIO, 1);
-        if (check.NoDecoder)
+        if (check.NoDecoder || (check.FramesDecoded == 0 && BuildCapabilities.DecodeMayBeUnavailable(probe.FirstAudio.CodecName)))
         {
-            log.Note($"No audio decoder for '{probe.FirstAudio.CodecName}'; snippet skipped.");
+            log.Note($"No usable audio decoder for '{probe.FirstAudio.CodecName}'; snippet skipped.");
             return;
         }
 

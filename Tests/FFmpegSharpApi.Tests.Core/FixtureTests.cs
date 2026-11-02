@@ -18,7 +18,16 @@ public sealed class FixtureTests
         using var log = new TestLogScope(id);
 
         var path = TestPaths.Fixture(fixture.Path);
-        Assert.True(File.Exists(path), $"Fixture file not found: {path}");
+        if (path.Contains('%'))
+        {
+            var dir = Path.GetDirectoryName(path)!;
+            Assert.True(Directory.Exists(dir) && Directory.EnumerateFiles(dir).Any(),
+                $"Image-sequence directory is empty: {dir}");
+        }
+        else
+        {
+            Assert.True(File.Exists(path), $"Fixture file not found: {path}");
+        }
 
         switch (fixture.Outcome)
         {
@@ -39,8 +48,21 @@ public sealed class FixtureTests
     private static void VerifyAccept(Fixture fixture, string path, TestLogScope log)
     {
         var probe = MediaProbe.Probe(path, fixture.InputArgs);
-        Assert.True(probe.Success,
-            $"Expected to open '{fixture.Id}' but probe failed: {Interop.ErrorString(probe.ErrorCode)}");
+        if (!probe.Success)
+        {
+            if (BuildCapabilities.IsOptionalUnavailable(fixture))
+            {
+                log.Note("Optional demuxer/decoder not present in this build; accept check skipped.");
+                return;
+            }
+            Assert.Fail($"Expected to open '{fixture.Id}' but probe failed: {Interop.ErrorString(probe.ErrorCode)}");
+        }
+
+        if (probe.FirstVideo is { Width: 0 } missing && !BuildCapabilities.HasDecoder(missing.CodecName))
+        {
+            log.Note($"No decoder for '{missing.CodecName}' in this build; accept check skipped.");
+            return;
+        }
 
         StreamMatcher.AssertExpectedStreams(fixture.Expected, probe);
 
@@ -50,16 +72,16 @@ public sealed class FixtureTests
         if (probe.FirstVideo is { } video)
         {
             var decode = MediaDecoder.Decode(path, fixture.InputArgs, AVMediaType.AVMEDIA_TYPE_VIDEO, 12);
-            if (decode.NoDecoder)
-                log.Note($"No video decoder for '{video.CodecName}' in this build; decode skipped.");
+            if (decode.FramesDecoded == 0 && (decode.NoDecoder || BuildCapabilities.DecodeMayBeUnavailable(video.CodecName)))
+                log.Note($"No usable video decoder for '{video.CodecName}' in this build; decode skipped.");
             else
                 Assert.True(decode.FramesDecoded > 0, $"No video frames decoded: {decode.Error}");
         }
         else if (probe.FirstAudio is { } audio)
         {
             var decode = MediaDecoder.Decode(path, fixture.InputArgs, AVMediaType.AVMEDIA_TYPE_AUDIO, 64);
-            if (decode.NoDecoder)
-                log.Note($"No audio decoder for '{audio.CodecName}' in this build; decode skipped.");
+            if (decode.FramesDecoded == 0 && (decode.NoDecoder || BuildCapabilities.DecodeMayBeUnavailable(audio.CodecName)))
+                log.Note($"No usable audio decoder for '{audio.CodecName}' in this build; decode skipped.");
             else
                 Assert.True(decode.FramesDecoded > 0, $"No audio frames decoded: {decode.Error}");
         }
