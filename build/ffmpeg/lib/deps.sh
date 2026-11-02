@@ -125,8 +125,19 @@ _dep_x265() {
     -DENABLE_PIC=ON ${extra[@]+"${extra[@]}"}
   run cmake --build "$WORK/x265/_build" -j"$(ncpu)"
   run cmake --install "$WORK/x265/_build"
-  # FFmpeg discovers x265 via pkg-config; ensure the .pc advertises the stdc++ dep.
-  if [ -f "$PREFIX/lib/pkgconfig/x265.pc" ]; then
-    sed -i.bak 's/^Libs.private:.*/&/' "$PREFIX/lib/pkgconfig/x265.pc" 2>/dev/null || true
+  # x265 is C++, so FFmpeg's static pkg-config link test must pull the C++
+  # runtime. Clang does not auto-link libc++ for a C test program (notably on
+  # cross targets), so advertise it in the .pc's Libs.private. Use libc++ on
+  # Apple/Clang, libstdc++ elsewhere.
+  local pc="$PREFIX/lib/pkgconfig/x265.pc"
+  if [ -f "$pc" ]; then
+    local cxxlib="-lstdc++"
+    { [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ]; } && cxxlib="-lc++"
+    if grep -q '^Libs.private:' "$pc"; then
+      grep -q -- "$cxxlib" "$pc" || sed -i.bak -E "s|^(Libs\.private:.*)|\\1 $cxxlib|" "$pc"
+    else
+      printf 'Libs.private: %s\n' "$cxxlib" >> "$pc"
+    fi
+    rm -f "$pc.bak"
   fi
 }
