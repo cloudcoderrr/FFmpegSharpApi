@@ -113,6 +113,8 @@ _dep_x264() {
 _dep_x265() {
   clone_component x265 "$X265_REPO" "$X265_REF" "$WORK/x265"
   apply_patches x265 "$WORK/x265" "$REPO_ROOT/patches"
+  # CMake 4.x rejects the explicit OLD policy sets x265 4.1 requests.
+  sed -i.bak -E '/cmake_policy\(SET (CMP0025|CMP0054) OLD\)/d' "$WORK/x265/source/CMakeLists.txt" || true
   rm -rf "$WORK/x265/_build"
   local extra=()
   case "$ARCH" in arm|arm64) extra+=(-DCROSS_COMPILE_ARM=ON -DENABLE_ASSEMBLY=OFF) ;; esac
