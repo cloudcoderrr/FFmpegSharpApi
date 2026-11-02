@@ -59,6 +59,16 @@ jobs:
             -p:"Description=Native FFmpeg 9.0 for iOS and Mac Catalyst (static xcframework)." \
             -p:XcframeworkDir="$PWD/artifacts/apple/${{ inputs.license }}/FFmpeg.xcframework"
 
+      - name: Install workloads for the managed package
+        if: ${{ inputs.license == 'lgpl' }}
+        run: dotnet workload restore src/FFmpegSharpApi/FFmpegSharpApi.csproj
+
+      - name: Pack managed package (all target frameworks)
+        if: ${{ inputs.license == 'lgpl' }}
+        run: |
+          dotnet pack src/FFmpegSharpApi/FFmpegSharpApi.csproj -c Release -o artifacts/packages \
+            -p:PackageVersion="${{ inputs.version }}"
+
       - uses: actions/upload-artifact@v4
         with:
           name: apple-nupkg-${{ inputs.license }}
