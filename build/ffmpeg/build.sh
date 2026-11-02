@@ -78,8 +78,9 @@ cfg=(--prefix="$PREFIX"
 cfg+=("${FF_EXTRA_CONFIGURE[@]}")
 [ "$LICENSE" = "gpl" ] && cfg+=(--enable-gpl)
 
+# FFmpeg builds the programs by default; the mobile/static flavours drop them.
 case "$FAMILY" in
-  windows|linux|macos) cfg+=(--enable-programs --enable-ffmpeg --enable-ffprobe) ;;
+  windows|linux|macos) cfg+=(--enable-ffmpeg --enable-ffprobe) ;;
   *)                   cfg+=(--disable-programs) ;;
 esac
 
