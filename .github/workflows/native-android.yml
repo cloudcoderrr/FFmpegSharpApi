@@ -1,0 +1,85 @@
+name: native-android
+
+on:
+  workflow_dispatch:
+    inputs:
+      license:
+        description: "License flavour to build"
+        type: choice
+        options: [both, lgpl, gpl]
+        default: both
+      rids:
+        description: "Space-separated RIDs (blank = all android)"
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      license:
+        type: string
+        default: both
+      rids:
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-android-${{ github.ref }}-${{ inputs.license }}-${{ inputs.rids }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - id: gen
+        shell: bash
+        run: |
+          ALL="android-arm64 android-arm android-x64 android-x86"
+          RIDS="${{ inputs.rids }}"; [ -z "$RIDS" ] && RIDS="$ALL"
+          LIC="${{ inputs.license }}"; [ -z "$LIC" ] && LIC="both"
+          case "$LIC" in both) LICS="lgpl gpl";; *) LICS="$LIC";; esac
+          inc=""; first=1
+          for r in $RIDS; do for l in $LICS; do
+            [ $first -eq 1 ] || inc="$inc,"; first=0
+            inc="$inc{\"rid\":\"$r\",\"license\":\"$l\"}"
+          done; done
+          echo "matrix={\"include\":[$inc]}" >> "$GITHUB_OUTPUT"
+          echo "include: [$inc]"
+
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    name: ${{ matrix.rid }} / ${{ matrix.license }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            nasm yasm pkg-config git cmake ninja-build patchelf python3-pip
+          python3 -m pip install --quiet --upgrade meson
+
+      - name: Build FFmpeg
+        run: |
+          chmod +x build/ffmpeg/build.sh
+          ANDROID_NDK_ROOT="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}" \
+            build/ffmpeg/build.sh --rid "${{ matrix.rid }}" --license "${{ matrix.license }}"
+
+      - name: Package artifact
+        run: |
+          tar -C artifacts/native -czf "ffmpeg-${{ matrix.license }}-${{ matrix.rid }}.tar.gz" \
+            "${{ matrix.license }}/${{ matrix.rid }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-${{ matrix.license }}-${{ matrix.rid }}
+          path: ffmpeg-${{ matrix.license }}-${{ matrix.rid }}.tar.gz
+          retention-days: 14
+          if-no-files-found: error

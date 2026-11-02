@@ -1,0 +1,41 @@
+# Default: treat files as text and normalise to LF in the repository.
+* text=auto eol=lf
+
+# Shell scripts must be LF so they run on Linux/macOS CI runners.
+*.sh   text eol=lf
+*.bash text eol=lf
+
+# CI and config formats that are consumed on Unix hosts.
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.env  text eol=lf
+
+# Source and project files.
+*.cs      text eol=lf
+*.csproj  text eol=lf
+*.props   text eol=lf
+*.targets text eol=lf
+*.sln     text eol=crlf
+*.json    text eol=lf
+*.xml     text eol=lf
+*.md      text eol=lf
+
+# Windows-only scripts stay CRLF.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary assets that must never be altered.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.dll  binary
+*.so   binary
+*.dylib binary
+*.a    binary
+*.lib  binary
+*.xcframework binary
+*.nupkg binary
+*.snupkg binary

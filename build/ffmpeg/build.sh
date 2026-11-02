@@ -97,14 +97,37 @@ cfg+=($(ffmpeg_dep_flags))
 OUT_RID="$OUTDIR/$LICENSE/$RID"
 rm -rf "$OUT_RID"; mkdir -p "$OUT_RID/lib"
 
+# Android forbids versioned sonames in an APK, so collapse libavcodec.so.63 -> libavcodec.so
+# and rewrite the soname and NEEDED entries to match.
+_stage_android_so() {
+  local real base stem f need newneed
+  for real in "$PREFIX"/lib/libav*.so.* "$PREFIX"/lib/libsw*.so.*; do
+    [ -e "$real" ] || continue
+    [ -L "$real" ] && continue
+    base="$(basename "$real")"; stem="${base%%.so.*}"
+    cp -v "$real" "$OUT_RID/lib/$stem.so"
+  done
+  for f in "$OUT_RID"/lib/*.so; do
+    patchelf --set-soname "$(basename "$f")" "$f"
+    while read -r need; do
+      case "$need" in
+        libav*.so.*|libsw*.so.*) newneed="${need%%.so.*}.so"; patchelf --replace-needed "$need" "$newneed" "$f" ;;
+      esac
+    done < <(patchelf --print-needed "$f")
+    strip_binary "$STRIP" "$f"
+  done
+}
+
 stage_shared() {
   case "$FAMILY" in
     windows)
       cp -v "$PREFIX"/bin/*.dll "$OUT_RID/lib/"
       for f in "$OUT_RID"/lib/*.dll; do strip_binary "$STRIP" "$f"; done ;;
-    linux|android)
+    linux)
       cp -Pv "$PREFIX"/lib/*.so* "$OUT_RID/lib/"
       for f in "$OUT_RID"/lib/*.so*; do [ -L "$f" ] || strip_binary "$STRIP" "$f"; done ;;
+    android)
+      _stage_android_so ;;
     macos)
       cp -v "$PREFIX"/lib/*.dylib "$OUT_RID/lib/"
       for f in "$OUT_RID"/lib/*.dylib; do

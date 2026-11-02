@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net10.0-android</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <PackageId>FFmpegSharpApi</PackageId>
+    <Title>FFmpegSharpApi</Title>
+    <Description>Cross-platform FFmpeg 9.0 bindings for .NET (MAUI, Avalonia, WinUI 3, Win32) with a native-library loader and logging. Call FFmpeg C APIs from C# on Windows, Linux, macOS, Mac Catalyst, iOS and Android.</Description>
+    <PackageTags>ffmpeg;media;video;audio;avcodec;avformat;maui;avalonia;winui;native;interop</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <!-- Android native libraries use unversioned sonames; min API 21 to match the NDK build. -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
+    <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst'))">
+    <SupportedOSPlatformVersion>14.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FFmpeg.AutoGen.Abstractions" Version="9.0.1.1" />
+  </ItemGroup>
+
+  <!-- Desktop + Android: resolve and load shared libraries at runtime. -->
+  <ItemGroup Condition="!$(TargetFramework.Contains('-ios')) And !$(TargetFramework.Contains('-maccatalyst'))">
+    <PackageReference Include="FFmpeg.AutoGen.Bindings.DynamicallyLoaded" Version="9.0.1.1" />
+  </ItemGroup>
+
+  <!-- iOS + Mac Catalyst: FFmpeg is statically linked into the app (__Internal). -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
+    <PackageReference Include="FFmpeg.AutoGen.Bindings.StaticallyLinked" Version="9.0.1.1" />
+  </ItemGroup>
+
+</Project>

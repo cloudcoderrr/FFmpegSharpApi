@@ -433,6 +433,8 @@ FodyWeavers.xsd
 # Native build intermediates and staged binaries (produced in CI).
 /build-work/
 /artifacts/
+# Local scratch space for inspecting downloaded CI artifacts.
+/inspect/
 # Keep the pinned-sources env file even though *.env is ignored above.
 !build/ffmpeg/versions.env
 # Test run outputs (logs, snapshots, extracted audio).

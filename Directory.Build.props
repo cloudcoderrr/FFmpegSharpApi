@@ -10,8 +10,6 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/cloudcoderrr/FFmpegSharpApi</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <!-- Versioning: the upstream FFmpeg release drives the package base version. -->
