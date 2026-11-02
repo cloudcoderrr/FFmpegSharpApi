@@ -1,0 +1,129 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "NuGet package version (without leading v)"
+        type: string
+        default: "9.0.1-preview.1"
+      licenses:
+        description: "License flavours to build and pack"
+        type: choice
+        options: [lgpl, both]
+        default: lgpl
+      prerelease:
+        description: "Mark the GitHub release as a pre-release"
+        type: boolean
+        default: true
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-linux:
+    uses: ./.github/workflows/native-linux.yml
+    with:
+      license: ${{ inputs.licenses || 'lgpl' }}
+
+  native-windows:
+    uses: ./.github/workflows/native-windows.yml
+    with:
+      license: ${{ inputs.licenses || 'lgpl' }}
+
+  native-apple:
+    uses: ./.github/workflows/native-apple.yml
+    with:
+      license: ${{ inputs.licenses || 'lgpl' }}
+      rids: "osx-arm64 osx-x64"
+
+  pack:
+    needs: [native-linux, native-windows, native-apple]
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve version
+        id: meta
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${{ github.ref_name }}"; VER="${TAG#v}"
+          else
+            VER="${{ inputs.version }}"; TAG="v$VER"
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Version=$VER Tag=$TAG"
+
+      - name: Download native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: native-artifacts
+          pattern: ffmpeg-*
+          merge-multiple: false
+
+      - name: Arrange native binaries
+        run: |
+          mkdir -p artifacts/native
+          find native-artifacts -name '*.tar.gz' -exec tar -C artifacts/native -xzf {} \;
+          echo "Staged native trees:"; find artifacts/native -maxdepth 2 -type d | sort
+
+      - name: Pack NuGet packages
+        env:
+          PACKAGE_VERSION: ${{ steps.meta.outputs.version }}
+          NATIVE_DIR: ${{ github.workspace }}/artifacts/native
+          OUT_DIR: ${{ github.workspace }}/artifacts/packages
+          MANAGED_TFMS: net10.0
+        run: |
+          chmod +x build/pack.sh
+          build/pack.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+
+  release:
+    needs: pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nupkgs
+          path: dist
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.pack.outputs.tag }}
+          VER: ${{ needs.pack.outputs.version }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          FLAGS=()
+          [ "${PRERELEASE:-true}" = "true" ] && FLAGS+=(--prerelease)
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.nupkg --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" dist/*.nupkg \
+              --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "FFmpegSharpApi $VER" \
+              --notes "FFmpeg 9.0.1 NuGet packages for .NET. Managed bindings plus native binaries (LGPL v3). See README for usage." \
+              "${FLAGS[@]}"
+          fi
+          echo "Release assets:"; gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'
