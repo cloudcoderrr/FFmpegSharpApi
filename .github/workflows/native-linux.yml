@@ -37,7 +37,7 @@ jobs:
       - id: gen
         shell: bash
         run: |
-          ALL="linux-x64 linux-x86 linux-arm64 linux-arm"
+          ALL="linux-x64 linux-arm64 linux-arm"
           RIDS="${{ inputs.rids }}"; [ -z "$RIDS" ] && RIDS="$ALL"
           LIC="${{ inputs.license }}"; [ -z "$LIC" ] && LIC="both"
           case "$LIC" in both) LICS="lgpl gpl";; *) LICS="$LIC";; esac
@@ -67,11 +67,6 @@ jobs:
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
             gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
           python3 -m pip install --quiet --upgrade meson
-          if [ "${{ matrix.rid }}" = "linux-x86" ]; then
-            sudo dpkg --add-architecture i386
-            sudo apt-get update
-            sudo apt-get install -y gcc-multilib g++-multilib
-          fi
 
       - name: Build FFmpeg
         run: |
