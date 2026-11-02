@@ -1,0 +1,6 @@
+ffconcat version 1.0
+# Include AAC encoder padding to keep DTS monotonic at the join.
+file '../video/h264_aac_stereo_faststart.mp4'
+duration 3.024
+file '../video/h264_aac_stereo_faststart.mp4'
+duration 3.024

@@ -1,0 +1,9 @@
+1
+00:00:00,100 --> 00:00:01,200
+Hello, FFmpeg!
+Second line.
+
+2
+00:00:01,300 --> 00:00:02,800
+<i>Italic</i> & punctuation: "quotes".
+

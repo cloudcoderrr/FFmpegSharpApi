@@ -426,3 +426,15 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# ---------------------------------------------------------------------------
+# FFmpegSharpApi
+# ---------------------------------------------------------------------------
+# Native build intermediates and staged binaries (produced in CI).
+/build-work/
+/artifacts/
+# Keep the pinned-sources env file even though *.env is ignored above.
+!build/ffmpeg/versions.env
+# Test run outputs (logs, snapshots, extracted audio).
+/test-output/
+**/TestResults/

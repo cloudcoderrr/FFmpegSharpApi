@@ -1,0 +1,6 @@
+# Preserve fixture bytes, including subtitle encodings and deliberate damage.
+* -text
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+.gitattributes text eol=lf

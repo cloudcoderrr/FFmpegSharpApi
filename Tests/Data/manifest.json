@@ -1,0 +1,6126 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-11-02T10:52:37.816421+00:00",
+  "origin": "Synthetic lavfi test patterns, mathematical tones and authored text; no downloaded media.",
+  "reference_encoder": {
+    "executable": "C:\\Users\\test\\AppData\\Local\\Temp\\ffmpegsharp-fixture-tools\\imageio_ffmpeg\\binaries\\ffmpeg-win-x86_64-v7.1.exe",
+    "version": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers\nbuilt with gcc 14.2.0 (Rev1, Built by MSYS2 project)\nconfiguration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband\nlibavutil      59. 39.100 / 59. 39.100\nlibavcodec     61. 19.100 / 61. 19.100\nlibavformat    61.  7.100 / 61.  7.100\nlibavdevice    61.  3.100 / 61.  3.100\nlibavfilter    10.  4.100 / 10.  4.100\nlibswscale      8.  3.100 /  8.  3.100\nlibswresample   5.  3.100 /  5.  3.100\nlibpostproc    58.  3.100 / 58.  3.100\n"
+  },
+  "fixtures": [
+    {
+      "id": "video.h264_aac_stereo_faststart",
+      "path": "video/h264_aac_stereo_faststart.mp4",
+      "scenario": "Everyday MP4: H.264 video, stereo AAC, seekable one-second GOPs, moov before mdat.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360,
+            "pix_fmt": "yuv420p"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          2.95,
+          3.1
+        ],
+        "mp4_layout": "faststart"
+      }
+    },
+    {
+      "id": "video.h264_baseline_video_only",
+      "path": "video/h264_baseline_video_only.mp4",
+      "scenario": "Video-only baseline profile, no B frames; handles a missing audio stream.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "profile": "Constrained Baseline",
+            "has_b_frames": 0
+          }
+        ],
+        "duration_range": [
+          1.95,
+          2.1
+        ]
+      }
+    },
+    {
+      "id": "video.h264_high_bframes_ntsc",
+      "path": "video/h264_high_bframes_ntsc.mp4",
+      "scenario": "NTSC fractional frame rate and reordered B-frame timestamps.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "profile": "High",
+            "r_frame_rate": "30000/1001",
+            "min_b_frames": 1
+          }
+        ],
+        "duration_range": [
+          1.95,
+          2.15
+        ]
+      }
+    },
+    {
+      "id": "video.hevc_main_aac",
+      "path": "video/hevc_main_aac.mp4",
+      "scenario": "HEVC Main profile in an Apple-compatible hvc1 MP4.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "hevc",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuv420p"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.95,
+          2.15
+        ]
+      }
+    },
+    {
+      "id": "video.hevc_main10_hdr_tags",
+      "path": "video/hevc_main10_hdr_tags.mkv",
+      "scenario": "Synthetic 10-bit HEVC carrying BT.2020/PQ tags for HDR metadata handling; not mastered HDR imagery.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "hevc",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuv420p10le",
+            "color_space": "bt2020nc"
+          }
+        ],
+        "frame_properties": {
+          "pix_fmt": "yuv420p10le",
+          "color_primaries": "bt2020",
+          "color_transfer": "smpte2084",
+          "color_space": "bt2020nc"
+        },
+        "frame_side_data_types": [
+          "Mastering display metadata",
+          "Content light level metadata"
+        ]
+      }
+    },
+    {
+      "id": "video.vp8_vorbis",
+      "path": "video/vp8_vorbis.webm",
+      "scenario": "Legacy browser WebM with VP8 and Vorbis.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "vp8",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "vorbis",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.vp9_opus",
+      "path": "video/vp9_opus.webm",
+      "scenario": "Modern browser WebM with VP9 and Opus.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "vp9",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "opus",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.vp9_10bit",
+      "path": "video/vp9_10bit.mkv",
+      "scenario": "VP9 profile 2 with 10-bit pixels.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "vp9",
+            "width": 320,
+            "height": 180,
+            "profile": "Profile 2",
+            "pix_fmt": "yuv420p10le"
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.av1_aac",
+      "path": "video/av1_aac.mp4",
+      "scenario": "AV1 in MP4; exercises software decoder availability.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "av1",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          0.95,
+          1.15
+        ]
+      }
+    },
+    {
+      "id": "video.mpeg4_mp3",
+      "path": "video/mpeg4_mp3.avi",
+      "scenario": "MPEG-4 Part 2 and MP3 in AVI.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "mpeg4",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "mp3",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.mpeg2_mp2",
+      "path": "video/mpeg2_mp2.mpg",
+      "scenario": "MPEG program stream for older TV/DVD workflows.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "mpeg2video",
+            "width": 352,
+            "height": 288
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "mp2",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.wmv2_wma",
+      "path": "video/wmv2_wma.asf",
+      "scenario": "Windows Media ASF playback and conversion.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "wmv2",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "wmav2",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.flv_mp3",
+      "path": "video/flv_mp3.flv",
+      "scenario": "Legacy FLV video and MP3 (this muxer exposes audio before video).",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "mp3",
+            "sample_rate": "44100",
+            "channels": 2
+          },
+          {
+            "codec_type": "video",
+            "codec_name": "flv1",
+            "width": 320,
+            "height": 180
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.theora_vorbis",
+      "path": "video/theora_vorbis.ogv",
+      "scenario": "Ogg container with Theora video and Vorbis audio.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "theora",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "vorbis",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.mjpeg_pcm",
+      "path": "video/mjpeg_pcm.avi",
+      "scenario": "Intra-frame MJPEG with uncompressed audio and full-range video.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "mjpeg",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuvj420p",
+            "color_range": "pc"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.prores422_pcm",
+      "path": "video/prores422_pcm.mov",
+      "scenario": "Editing intermediate: 10-bit ProRes 422 and 24-bit PCM.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "prores",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuv422p10le"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s24le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.prores4444_alpha",
+      "path": "video/prores4444_alpha.mov",
+      "scenario": "ProRes 4444 with a semi-transparent alpha plane.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "prores",
+            "width": 160,
+            "height": 90,
+            "pix_fmt": "yuva444p12le"
+          }
+        ],
+        "alpha": true
+      }
+    },
+    {
+      "id": "video.ffv1_flac_lossless",
+      "path": "video/ffv1_flac_lossless.mkv",
+      "scenario": "Lossless archive with 10-bit 4:4:4 FFV1 and FLAC.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "ffv1",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuv444p10le"
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "flac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.mobile_h263_aac",
+      "path": "video/mobile_h263_aac.3gp",
+      "scenario": "Legacy mobile 3GP with H.263 video and mono AAC.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h263",
+            "width": 176,
+            "height": 144
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "16000",
+            "channels": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.h264_high10",
+      "path": "video/h264_high10.mp4",
+      "scenario": "H.264 High 10 profile, often unsupported by hardware-only playback paths.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "profile": "High 10",
+            "pix_fmt": "yuv420p10le"
+          }
+        ]
+      }
+    },
+    {
+      "id": "video.h264_rgb_screen_capture",
+      "path": "video/h264_rgb_screen_capture.mkv",
+      "scenario": "Lossless RGB H.264 screen-capture style input with 4:4:4 pixels.",
+      "tags": [
+        "video"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "gbrp"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.long_gop_15s",
+      "path": "properties/long_gop_15s.mp4",
+      "scenario": "Fifteen-second video with ten-second GOPs for accurate seeking near the end.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "r_frame_rate": "12/1"
+          }
+        ],
+        "duration_range": [
+          14.95,
+          15.1
+        ]
+      }
+    },
+    {
+      "id": "properties.portrait_9x16",
+      "path": "properties/portrait_9x16.mp4",
+      "scenario": "Dimension/frame-rate boundary: 180x320, 24 fps, 1 seconds.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 180,
+            "height": 320,
+            "r_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.hd_720p",
+      "path": "properties/hd_720p.mp4",
+      "scenario": "Dimension/frame-rate boundary: 1280x720, 24 fps, 1 seconds.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.fullhd_1080p",
+      "path": "properties/fullhd_1080p.mp4",
+      "scenario": "Dimension/frame-rate boundary: 1920x1080, 24 fps, 0.5 seconds.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.uhd_4k_one_frame",
+      "path": "properties/uhd_4k_one_frame.mp4",
+      "scenario": "Dimension/frame-rate boundary: 3840x2160, 4 fps, 0.25 seconds.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 3840,
+            "height": 2160,
+            "r_frame_rate": "4/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.high_framerate_60fps",
+      "path": "properties/high_framerate_60fps.mp4",
+      "scenario": "Dimension/frame-rate boundary: 320x180, 60 fps, 1 seconds.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "r_frame_rate": "60/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.odd_dimensions",
+      "path": "properties/odd_dimensions.mkv",
+      "scenario": "Odd dimensions that cannot be represented by ordinary 4:2:0 encoders.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "ffv1",
+            "width": 321,
+            "height": 181,
+            "pix_fmt": "yuv444p"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.rotated_90",
+      "path": "properties/rotated_90.mp4",
+      "scenario": "Phone-style display rotation metadata; encoded dimensions stay 640x360.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360,
+            "rotation": 90
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.anamorphic_pal",
+      "path": "properties/anamorphic_pal.mkv",
+      "scenario": "Non-square pixels: 720x576 encoded, 4:3 displayed.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 720,
+            "height": 576,
+            "sample_aspect_ratio": "16:15",
+            "display_aspect_ratio": "4:3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.interlaced_top_first",
+      "path": "properties/interlaced_top_first.mpg",
+      "scenario": "Top-field-first interlaced MPEG-2, 25 frames / 50 fields per second.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "mpeg2video",
+            "width": 352,
+            "height": 288,
+            "field_order": "tt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "properties.variable_frame_rate",
+      "path": "properties/variable_frame_rate.mp4",
+      "scenario": "Two frame cadences in one file (12 then 24 fps); inspect packet timestamps.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180
+          }
+        ],
+        "variable_frame_rate": true
+      }
+    },
+    {
+      "id": "properties.audio_delayed_250ms",
+      "path": "properties/audio_delayed_250ms.mp4",
+      "scenario": "Audio begins roughly 250ms after video; AAC priming introduces small variation.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "audio_video_start_delta_range": [
+          0.2,
+          0.28
+        ]
+      }
+    },
+    {
+      "id": "properties.audio_longer_than_video",
+      "path": "properties/audio_longer_than_video.mp4",
+      "scenario": "Unequal stream lengths; do not assume audio and video end together.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "stream_duration_gap_min": 0.8
+      }
+    },
+    {
+      "id": "properties.nonzero_start_timestamp",
+      "path": "properties/nonzero_start_timestamp.ts",
+      "scenario": "Transport-stream timestamps start away from zero.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "start_time_min": 5
+      }
+    },
+    {
+      "id": "properties.mp4_moov_at_end",
+      "path": "properties/mp4_moov_at_end.mp4",
+      "scenario": "Ordinary MP4 with the moov index at the end; requires seekable input.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "mp4_layout": "moov_at_end"
+      }
+    },
+    {
+      "id": "properties.fragmented",
+      "path": "properties/fragmented.mp4",
+      "scenario": "Fragmented MP4 with moof boxes for progressive/pipe processing.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "mp4_layout": "fragmented"
+      }
+    },
+    {
+      "id": "properties.one_frame",
+      "path": "properties/one_frame.mp4",
+      "scenario": "A valid single-frame video shorter than a typical seek interval.",
+      "tags": [
+        "properties"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180
+          }
+        ],
+        "duration_range": [
+          0.03,
+          0.09
+        ]
+      }
+    },
+    {
+      "id": "audio.pcm16_mono_8k",
+      "path": "audio/pcm16_mono_8k.wav",
+      "scenario": "Audio-only conversion: pcm_s16le, 8000 Hz, 1 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "8000",
+            "channels": 1
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.pcm16_stereo_44100",
+      "path": "audio/pcm16_stereo_44100.wav",
+      "scenario": "Audio-only conversion: pcm_s16le, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.aiff_big_endian",
+      "path": "audio/aiff_big_endian.aiff",
+      "scenario": "Audio-only conversion: pcm_s16be, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16be",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.pcm24_stereo_96k",
+      "path": "audio/pcm24_stereo_96k.wav",
+      "scenario": "Audio-only conversion: pcm_s24le, 96000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s24le",
+            "sample_rate": "96000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.pcm32_stereo_48k",
+      "path": "audio/pcm32_stereo_48k.wav",
+      "scenario": "Audio-only conversion: pcm_s32le, 48000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s32le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.float32_stereo",
+      "path": "audio/float32_stereo.wav",
+      "scenario": "Audio-only conversion: pcm_f32le, 48000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_f32le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.pcm16_surround_71",
+      "path": "audio/pcm16_surround_71.wav",
+      "scenario": "Audio-only conversion: pcm_s16le, 48000 Hz, 8 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 8
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.flac_24bit_96k",
+      "path": "audio/flac_24bit_96k.flac",
+      "scenario": "Audio-only conversion: flac, 96000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "flac",
+            "sample_rate": "96000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.alac_lossless",
+      "path": "audio/alac_lossless.m4a",
+      "scenario": "Audio-only conversion: alac, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "alac",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.mp3_cbr_128k",
+      "path": "audio/mp3_cbr_128k.mp3",
+      "scenario": "Audio-only conversion: mp3, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "mp3",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.mp3_vbr",
+      "path": "audio/mp3_vbr.mp3",
+      "scenario": "Audio-only conversion: mp3, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "mp3",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.aac_lc",
+      "path": "audio/aac_lc.m4a",
+      "scenario": "Audio-only conversion: aac, 48000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.aac_adts",
+      "path": "audio/aac_adts.aac",
+      "scenario": "Audio-only conversion: aac, 48000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.opus",
+      "path": "audio/opus.ogg",
+      "scenario": "Audio-only conversion: opus, 48000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "opus",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.vorbis",
+      "path": "audio/vorbis.ogg",
+      "scenario": "Audio-only conversion: vorbis, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "vorbis",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.wma",
+      "path": "audio/wma.wma",
+      "scenario": "Audio-only conversion: wmav2, 44100 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "wmav2",
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.ac3_surround_51",
+      "path": "audio/ac3_surround_51.ac3",
+      "scenario": "Audio-only conversion: ac3, 48000 Hz, 6 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "ac3",
+            "sample_rate": "48000",
+            "channels": 6
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.eac3_surround_51",
+      "path": "audio/eac3_surround_51.eac3",
+      "scenario": "Audio-only conversion: eac3, 48000 Hz, 6 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "eac3",
+            "sample_rate": "48000",
+            "channels": 6
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.dts_surround_51",
+      "path": "audio/dts_surround_51.dts",
+      "scenario": "Audio-only conversion: dts, 48000 Hz, 6 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "dts",
+            "sample_rate": "48000",
+            "channels": 6
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.amr_nb_voice",
+      "path": "audio/amr_nb_voice.amr",
+      "scenario": "Audio-only conversion: amr_nb, 8000 Hz, 1 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "amr_nb",
+            "sample_rate": "8000",
+            "channels": 1
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.mp2",
+      "path": "audio/mp2.mp2",
+      "scenario": "Audio-only conversion: mp2, 48000 Hz, 2 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "mp2",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.g711_mulaw",
+      "path": "audio/g711_mulaw.wav",
+      "scenario": "Audio-only conversion: pcm_mulaw, 8000 Hz, 1 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_mulaw",
+            "sample_rate": "8000",
+            "channels": 1
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.g711_alaw",
+      "path": "audio/g711_alaw.wav",
+      "scenario": "Audio-only conversion: pcm_alaw, 8000 Hz, 1 channels; distinct tone per channel.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_alaw",
+            "sample_rate": "8000",
+            "channels": 1
+          }
+        ],
+        "duration_range": [
+          1.9,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "audio.silence",
+      "path": "audio/silence.wav",
+      "scenario": "Digital silence for silence detection and zero-level handling.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "signal": "silence"
+      }
+    },
+    {
+      "id": "audio.impulse_at_500ms",
+      "path": "audio/impulse_at_500ms.wav",
+      "scenario": "One impulse at exactly sample 24000 for sample-accurate trim and resampling.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 1
+          }
+        ],
+        "signal": "impulse",
+        "impulse_sample": 24000
+      }
+    },
+    {
+      "id": "audio.quiet_minus40db",
+      "path": "audio/quiet_minus40db.wav",
+      "scenario": "Quiet signal with approximately -40 dBFS peak for normalization.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 1
+          }
+        ],
+        "peak_range": [
+          0.009,
+          0.011
+        ]
+      }
+    },
+    {
+      "id": "audio.clipped",
+      "path": "audio/clipped.wav",
+      "scenario": "Deliberate hard clipping at full scale for peak and distortion checks.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 1
+          }
+        ],
+        "peak_range": [
+          0.999,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "audio.very_short_10ms",
+      "path": "audio/very_short_10ms.wav",
+      "scenario": "Audio shorter than one compressed-audio frame.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 1
+          }
+        ],
+        "duration_range": [
+          0.009,
+          0.011
+        ]
+      }
+    },
+    {
+      "id": "audio.stereo_distinct_channels",
+      "path": "audio/stereo_distinct_channels.wav",
+      "scenario": "Left 440 Hz and right 660 Hz tones identify channel swaps and downmix behavior.",
+      "tags": [
+        "audio"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "stereo_tone_hz": [
+          440,
+          660
+        ]
+      }
+    },
+    {
+      "id": "images.color",
+      "path": "images/color.png",
+      "scenario": "Single-image decode, thumbnail and conversion input.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "png",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "rgb24"
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.color",
+      "path": "images/color.jpg",
+      "scenario": "Single-image decode, thumbnail and conversion input.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "mjpeg",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuvj420p"
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.color",
+      "path": "images/color.bmp",
+      "scenario": "Single-image decode, thumbnail and conversion input.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "bmp",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "bgr24"
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.color",
+      "path": "images/color.tiff",
+      "scenario": "Single-image decode, thumbnail and conversion input.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "tiff",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "rgb24"
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.color",
+      "path": "images/color.webp",
+      "scenario": "Single-image decode, thumbnail and conversion input.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "webp",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuv420p"
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.alpha",
+      "path": "images/alpha.png",
+      "scenario": "RGBA PNG with transparency for overlay/compositing.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "png",
+            "width": 160,
+            "height": 90,
+            "pix_fmt": "rgba"
+          }
+        ],
+        "alpha": true
+      }
+    },
+    {
+      "id": "images.grayscale16",
+      "path": "images/grayscale16.png",
+      "scenario": "16-bit grayscale image conversion.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "png",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "gray16be"
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.animated",
+      "path": "images/animated.gif",
+      "scenario": "Animated GIF with palette, looping and frame timing.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "gif",
+            "width": 160,
+            "height": 90
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.animated",
+      "path": "images/animated.apng",
+      "scenario": "Animated PNG with multiple frames.",
+      "tags": [
+        "images"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "apng",
+            "width": 160,
+            "height": 90
+          }
+        ]
+      }
+    },
+    {
+      "id": "images.sequence",
+      "path": "images/sequence/frame_%03d.png",
+      "scenario": "Numbered PNG sequence at an explicit frame rate.",
+      "tags": [
+        "images",
+        "sequence"
+      ],
+      "outcome": "accept",
+      "input_args": [
+        "-framerate",
+        "4",
+        "-start_number",
+        "1"
+      ],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "png",
+            "width": 160,
+            "height": 90
+          }
+        ],
+        "duration_range": [
+          0.95,
+          1.05
+        ]
+      },
+      "pattern": true
+    },
+    {
+      "id": "raw.yuv420p_160x90_12fps",
+      "path": "raw/yuv420p_160x90_12fps.yuv",
+      "scenario": "Headerless raw video; callers must provide pixel format, dimensions and frame rate.",
+      "tags": [
+        "raw"
+      ],
+      "outcome": "accept",
+      "input_args": [
+        "-f",
+        "rawvideo",
+        "-pixel_format",
+        "yuv420p",
+        "-video_size",
+        "160x90",
+        "-framerate",
+        "12"
+      ],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "rawvideo",
+            "width": 160,
+            "height": 90,
+            "pix_fmt": "yuv420p"
+          }
+        ],
+        "duration_range": [
+          0.95,
+          1.05
+        ]
+      }
+    },
+    {
+      "id": "raw.pcm_s16le_mono_16k",
+      "path": "raw/pcm_s16le_mono_16k.pcm",
+      "scenario": "Headerless signed 16-bit little-endian PCM.",
+      "tags": [
+        "raw"
+      ],
+      "outcome": "accept",
+      "input_args": [
+        "-f",
+        "s16le",
+        "-sample_rate",
+        "16000",
+        "-ch_layout",
+        "mono"
+      ],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "pcm_s16le",
+            "sample_rate": "16000",
+            "channels": 1
+          }
+        ],
+        "duration_range": [
+          0.95,
+          1.05
+        ]
+      }
+    },
+    {
+      "id": "raw.h264_annexb",
+      "path": "raw/h264_annexb.h264",
+      "scenario": "Elementary H.264 Annex B bitstream without container timestamps.",
+      "tags": [
+        "raw"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      }
+    },
+    {
+      "id": "raw.hevc_annexb",
+      "path": "raw/hevc_annexb.hevc",
+      "scenario": "Elementary HEVC Annex B bitstream.",
+      "tags": [
+        "raw"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "hevc",
+            "width": 320,
+            "height": 180
+          }
+        ]
+      }
+    },
+    {
+      "id": "subtitles.english",
+      "path": "subtitles/english.srt",
+      "scenario": "Subtitle parsing, text extraction and character encoding.",
+      "tags": [
+        "subtitles"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "subrip"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "subtitles.unicode_overlap",
+      "path": "subtitles/unicode_overlap.srt",
+      "scenario": "Subtitle parsing, text extraction and character encoding.",
+      "tags": [
+        "subtitles"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "subrip"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "subtitles.utf8_bom_crlf",
+      "path": "subtitles/utf8_bom_crlf.srt",
+      "scenario": "Subtitle parsing, text extraction and character encoding.",
+      "tags": [
+        "subtitles"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "subrip"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "subtitles.latin1",
+      "path": "subtitles/latin1.srt",
+      "scenario": "Subtitle parsing, text extraction and character encoding.",
+      "tags": [
+        "subtitles"
+      ],
+      "outcome": "accept",
+      "input_args": [
+        "-sub_charenc",
+        "ISO-8859-1"
+      ],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "subrip"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "subtitles.styled",
+      "path": "subtitles/styled.ass",
+      "scenario": "Subtitle parsing, text extraction and character encoding.",
+      "tags": [
+        "subtitles"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "ass"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "subtitles.captions",
+      "path": "subtitles/captions.vtt",
+      "scenario": "Subtitle parsing, text extraction and character encoding.",
+      "tags": [
+        "subtitles"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "webvtt"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "metadata.multitrack_chapters_attachment",
+      "path": "metadata/multitrack_chapters_attachment.mkv",
+      "scenario": "Stream selection: two languages/audio codecs, default/forced subtitles, two chapters and a text attachment.",
+      "tags": [
+        "metadata"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2,
+            "tags": {
+              "language": "eng"
+            },
+            "disposition": {
+              "default": 1
+            }
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "flac",
+            "sample_rate": "48000",
+            "channels": 1,
+            "tags": {
+              "language": "jpn"
+            },
+            "disposition": {
+              "default": 0
+            }
+          },
+          {
+            "codec_type": "subtitle",
+            "codec_name": "subrip",
+            "tags": {
+              "language": "eng"
+            },
+            "disposition": {
+              "default": 1
+            }
+          },
+          {
+            "codec_type": "subtitle",
+            "codec_name": "ass",
+            "tags": {
+              "language": "jpn"
+            },
+            "disposition": {
+              "forced": 1
+            }
+          },
+          {
+            "codec_type": "attachment",
+            "tags": {
+              "mimetype": "text/plain",
+              "filename": "readme.txt"
+            }
+          }
+        ],
+        "chapter_count": 2,
+        "subtitle_cues_min": 2,
+        "attachment_sha256": "3ecde3652d1e6be9fc4515f3f3dcb3ff87cbf7495df6a054687aa73bf86264f9"
+      }
+    },
+    {
+      "id": "metadata.mp4_embedded_subtitles",
+      "path": "metadata/mp4_embedded_subtitles.mp4",
+      "scenario": "MP4 mov_text subtitles containing Unicode and overlapping source cues.",
+      "tags": [
+        "metadata"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          },
+          {
+            "codec_type": "subtitle",
+            "codec_name": "mov_text"
+          }
+        ],
+        "subtitle_cues_min": 1
+      }
+    },
+    {
+      "id": "metadata.subtitle_only",
+      "path": "metadata/subtitle_only.mks",
+      "scenario": "Subtitle-only Matroska: no audio or video streams.",
+      "tags": [
+        "metadata"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "subtitle",
+            "codec_name": "subrip"
+          }
+        ],
+        "subtitle_cues_min": 2
+      }
+    },
+    {
+      "id": "metadata.audio_unicode_tags",
+      "path": "metadata/audio_unicode_tags.m4a",
+      "scenario": "Unicode metadata and punctuation survive demux/remux.",
+      "tags": [
+        "metadata"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format_tags": {
+          "title": "日本語 Café 🎵",
+          "artist": "FFmpegSharpApi"
+        }
+      }
+    },
+    {
+      "id": "metadata.mp3_cover_art",
+      "path": "metadata/mp3_cover_art.mp3",
+      "scenario": "MP3 with embedded JPEG cover art; distinguish cover art from motion video.",
+      "tags": [
+        "metadata"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "audio",
+            "codec_name": "mp3",
+            "sample_rate": "44100",
+            "channels": 2
+          },
+          {
+            "codec_type": "video",
+            "codec_name": "mjpeg",
+            "width": 320,
+            "height": 180,
+            "pix_fmt": "yuvj420p",
+            "disposition": {
+              "attached_pic": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "streaming.transport_stream",
+      "path": "streaming/transport_stream.ts",
+      "scenario": "Standalone MPEG-TS with H.264/AAC.",
+      "tags": [
+        "streaming"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "streaming.hls_ts.index",
+      "path": "streaming/hls_ts/index.m3u8",
+      "scenario": "Local HLS VOD playlist using mpegts segments; test playlist-relative paths.",
+      "tags": [
+        "streaming"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          2.95,
+          3.15
+        ]
+      }
+    },
+    {
+      "id": "streaming.hls_fmp4.index",
+      "path": "streaming/hls_fmp4/index.m3u8",
+      "scenario": "Local HLS VOD playlist using fmp4 segments; test playlist-relative paths.",
+      "tags": [
+        "streaming"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          2.95,
+          3.15
+        ]
+      }
+    },
+    {
+      "id": "streaming.dash.manifest",
+      "path": "streaming/dash/manifest.mpd",
+      "scenario": "Local MPEG-DASH manifest with separate audio/video fragmented MP4 representations.",
+      "tags": [
+        "streaming"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          2.95,
+          3.15
+        ]
+      }
+    },
+    {
+      "id": "editing.two_clips",
+      "path": "editing/two_clips.ffconcat",
+      "scenario": "Concat demuxer: two compatible clips, relative paths, about six seconds including AAC padding.",
+      "tags": [
+        "editing"
+      ],
+      "outcome": "accept",
+      "input_args": [
+        "-safe",
+        "0"
+      ],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "duration_range": [
+          6.0,
+          6.15
+        ]
+      }
+    },
+    {
+      "id": "paths.file with spaces",
+      "path": "paths/file with spaces.mp4",
+      "scenario": "Open media using literal Unicode/space/punctuation/long paths or content-based format detection.",
+      "tags": [
+        "paths"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "paths.日本語 café 🎬.映像",
+      "path": "paths/日本語 café 🎬/映像.mp4",
+      "scenario": "Open media using literal Unicode/space/punctuation/long paths or content-based format detection.",
+      "tags": [
+        "paths"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "paths.clip [01] & 100% #1",
+      "path": "paths/clip [01] & 100% #1.mp4",
+      "scenario": "Open media using literal Unicode/space/punctuation/long paths or content-based format detection.",
+      "tags": [
+        "paths"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "paths.no_extension",
+      "path": "paths/no_extension",
+      "scenario": "Open media using literal Unicode/space/punctuation/long paths or content-based format detection.",
+      "tags": [
+        "paths"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "paths.mp4_content_wrong_extension",
+      "path": "paths/mp4_content_wrong_extension.dat",
+      "scenario": "Open media using literal Unicode/space/punctuation/long paths or content-based format detection.",
+      "tags": [
+        "paths"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "paths.long_directory_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.long_filename_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "path": "paths/long_directory_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/long_filename_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.mp4",
+      "scenario": "Open media using literal Unicode/space/punctuation/long paths or content-based format detection.",
+      "tags": [
+        "paths"
+      ],
+      "outcome": "accept",
+      "input_args": [],
+      "expected": {
+        "streams": [
+          {
+            "codec_type": "video",
+            "codec_name": "h264",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "codec_type": "audio",
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "invalid.empty",
+      "path": "invalid/empty.mp4",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.text_disguised_as_video",
+      "path": "invalid/text_disguised_as_video.mp4",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.random_seed_2026",
+      "path": "invalid/random_seed_2026.bin",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.mp4_truncated_header",
+      "path": "invalid/mp4_truncated_header.mp4",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.malformed_riff",
+      "path": "invalid/malformed_riff.wav",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.malformed",
+      "path": "invalid/malformed.srt",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.missing_segment",
+      "path": "invalid/missing_segment.m3u8",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "invalid.missing_concat",
+      "path": "invalid/missing_concat.ffconcat",
+      "scenario": "Expected rejection: return an error promptly, with no process crash.",
+      "tags": [
+        "invalid"
+      ],
+      "outcome": "reject",
+      "input_args": [
+        "-safe",
+        "0"
+      ],
+      "expected": {}
+    },
+    {
+      "id": "damaged.truncated_transport_stream",
+      "path": "damaged/truncated_transport_stream.ts",
+      "scenario": "Half-length transport stream; best-effort recovery or clean error are both allowed.",
+      "tags": [
+        "damaged"
+      ],
+      "outcome": "recover_or_reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "damaged.truncated_pcm",
+      "path": "damaged/truncated_pcm.wav",
+      "scenario": "Declared WAV length exceeds available samples; best-effort recovery or clean error.",
+      "tags": [
+        "damaged"
+      ],
+      "outcome": "recover_or_reject",
+      "input_args": [],
+      "expected": {}
+    },
+    {
+      "id": "damaged.corrupt_video_packet",
+      "path": "damaged/corrupt_video_packet.mp4",
+      "scenario": "Valid MP4 structure with injected packet damage; recovery behavior may vary by decoder.",
+      "tags": [
+        "damaged"
+      ],
+      "outcome": "recover_or_reject",
+      "input_args": [],
+      "expected": {}
+    }
+  ],
+  "assets": [
+    {
+      "path": "attachments/readme.txt",
+      "role": "sidecar",
+      "bytes": 127,
+      "sha256": "3ecde3652d1e6be9fc4515f3f3dcb3ff87cbf7495df6a054687aa73bf86264f9"
+    },
+    {
+      "path": "audio/aac_adts.aac",
+      "role": "fixture",
+      "bytes": 24679,
+      "sha256": "7735a61f7fffa717c07410fb2a218c1e6462111234123c19a388e1ac746a52e0"
+    },
+    {
+      "path": "audio/aac_lc.m4a",
+      "role": "fixture",
+      "bytes": 25200,
+      "sha256": "1b4bc2b8489902cfad6c4e5e1dd344341818f359f41b9cc5db89d95222a2f87b"
+    },
+    {
+      "path": "audio/ac3_surround_51.ac3",
+      "role": "fixture",
+      "bytes": 96768,
+      "sha256": "961f38b54abad7984a61b79d7e2ea3ecd4254fa75759c3d2d52836f6002b29c9"
+    },
+    {
+      "path": "audio/aiff_big_endian.aiff",
+      "role": "fixture",
+      "bytes": 352854,
+      "sha256": "f932100ce65e230264f97315daebf1932586d86137f18d99615e932b9abdaccf"
+    },
+    {
+      "path": "audio/alac_lossless.m4a",
+      "role": "fixture",
+      "bytes": 252610,
+      "sha256": "f0ca883868dc0cefe5674682890bee01626f5b9216652703cd5f85d1bf9b9eb1"
+    },
+    {
+      "path": "audio/amr_nb_voice.amr",
+      "role": "fixture",
+      "bytes": 3238,
+      "sha256": "c04e3fb078395f8a23748f45950a0d28292117e75f3c16c82971318908534041"
+    },
+    {
+      "path": "audio/clipped.wav",
+      "role": "fixture",
+      "bytes": 96078,
+      "sha256": "bce4702d656633271e715e4df80e55d68223e61d2df2df1dac8c0a2e68e9baeb"
+    },
+    {
+      "path": "audio/dts_surround_51.dts",
+      "role": "fixture",
+      "bytes": 192512,
+      "sha256": "bfc148054d81a415d8fa532d730abc474a04b87f141293eb1cf9e6105e8d27b3"
+    },
+    {
+      "path": "audio/eac3_surround_51.eac3",
+      "role": "fixture",
+      "bytes": 96768,
+      "sha256": "8b89361191d0be3e4ad2fdb727f94fce440a077fd083321cb4665d576829a146"
+    },
+    {
+      "path": "audio/flac_24bit_96k.flac",
+      "role": "fixture",
+      "bytes": 354069,
+      "sha256": "f74b5ecdca97e7cc757139501f61689f970b54414bda1f5c8682afcab2b04b6b"
+    },
+    {
+      "path": "audio/float32_stereo.wav",
+      "role": "fixture",
+      "bytes": 768092,
+      "sha256": "1bb73f617f7881a6f089fec15dc34f9785bfd718d09b525fdf45ae16459284d3"
+    },
+    {
+      "path": "audio/g711_alaw.wav",
+      "role": "fixture",
+      "bytes": 16092,
+      "sha256": "25c7765cbebe713ffd84decb3df79ab160679e8259b05facca7e02f16d7f2bd0"
+    },
+    {
+      "path": "audio/g711_mulaw.wav",
+      "role": "fixture",
+      "bytes": 16092,
+      "sha256": "902b1187c7461075d7993906880e99f40e5bbff32d1fbf69801166205acc725d"
+    },
+    {
+      "path": "audio/impulse_at_500ms.wav",
+      "role": "fixture",
+      "bytes": 96078,
+      "sha256": "16a070635feb73ea71bac18d8eb242de78f803e2e67d773ee96d0c88971e9ae2"
+    },
+    {
+      "path": "audio/mp2.mp2",
+      "role": "fixture",
+      "bytes": 32256,
+      "sha256": "3ed3e0d4481a11b4b67bc0acf4c992505184b58895eafd1e3c56860f620cef02"
+    },
+    {
+      "path": "audio/mp3_cbr_128k.mp3",
+      "role": "fixture",
+      "bytes": 33061,
+      "sha256": "fba7aede2e0130e57b5c237bcfdb2c357f9f344871ddad5337ae770770029e12"
+    },
+    {
+      "path": "audio/mp3_vbr.mp3",
+      "role": "fixture",
+      "bytes": 15598,
+      "sha256": "f7cce8c3c5261ed9238feed64913344c6cb29f08d9d3cee1d1d7e3aa8519107f"
+    },
+    {
+      "path": "audio/opus.ogg",
+      "role": "fixture",
+      "bytes": 22256,
+      "sha256": "242921df84596d14319df927070ad75b9d7276ead58a6fe89b4a90d3f16428f9"
+    },
+    {
+      "path": "audio/pcm16_mono_8k.wav",
+      "role": "fixture",
+      "bytes": 32078,
+      "sha256": "cf65d8084fc7e7cdda2b139a44cf6ae7dca93b257a891a60bee32cd3c6e9d3a3"
+    },
+    {
+      "path": "audio/pcm16_stereo_44100.wav",
+      "role": "fixture",
+      "bytes": 352878,
+      "sha256": "9de5bae616a8c8c533e46ba9a46855a72c88600be889bd1289396831648aea71"
+    },
+    {
+      "path": "audio/pcm16_surround_71.wav",
+      "role": "fixture",
+      "bytes": 1536102,
+      "sha256": "e9fe8a6ae816ebd37f7f8311c5bc3ea12268a1b2f22e626c178a7a2eddb0e21f"
+    },
+    {
+      "path": "audio/pcm24_stereo_96k.wav",
+      "role": "fixture",
+      "bytes": 1152102,
+      "sha256": "78bbbd9019f6f6fed2b45af17aa9a709cd3e9995baaaba446314639bdc3011e6"
+    },
+    {
+      "path": "audio/pcm32_stereo_48k.wav",
+      "role": "fixture",
+      "bytes": 768102,
+      "sha256": "ac21ee7c7fb8aad2b969a6f12691309afdabe741582f68f9839297623ee6ec0d"
+    },
+    {
+      "path": "audio/quiet_minus40db.wav",
+      "role": "fixture",
+      "bytes": 96078,
+      "sha256": "4fd616e3b989d95c331e55c66badc95422e76e5f721e78aa8e3a06d074910fa6"
+    },
+    {
+      "path": "audio/silence.wav",
+      "role": "fixture",
+      "bytes": 192078,
+      "sha256": "fb92113e78ed54ddd15d17e978dd7e012df7df78c84f1d33bb6451592b443218"
+    },
+    {
+      "path": "audio/stereo_distinct_channels.wav",
+      "role": "fixture",
+      "bytes": 384078,
+      "sha256": "d2f643235d8722ac85973812ecd69eda7c47d8481645735522298f472f006668"
+    },
+    {
+      "path": "audio/very_short_10ms.wav",
+      "role": "fixture",
+      "bytes": 1038,
+      "sha256": "11de6656c0aadf1845ba658e0f8be152672aa93d2a5ea50a98e019bdd7f552f3"
+    },
+    {
+      "path": "audio/vorbis.ogg",
+      "role": "fixture",
+      "bytes": 10647,
+      "sha256": "6741a4ca4e5a7bb5299e314ccf4f034b8039216678b8ffb2bfec7b8a61a9ef81"
+    },
+    {
+      "path": "audio/wma.wma",
+      "role": "fixture",
+      "bytes": 35742,
+      "sha256": "8483d4e0965869f357ea01bd57db1ab5721b7dca2634c901dc6e2fd52250cacc"
+    },
+    {
+      "path": "damaged/corrupt_video_packet.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "a05098c1dc4f70e0711fee3f1d1db50e5597db3ef9a8c78cd4c383b0311b153e"
+    },
+    {
+      "path": "damaged/truncated_pcm.wav",
+      "role": "fixture",
+      "bytes": 176439,
+      "sha256": "f82528db95514f5221a9179bc5df918e23ff87cdba305c75c69fbecf1d90f807"
+    },
+    {
+      "path": "damaged/truncated_transport_stream.ts",
+      "role": "fixture",
+      "bytes": 108100,
+      "sha256": "3ad19d2c0d62bf6ec9c8f4a58a8c202c14c2dcc754a6aabc204a27e9aeed8b73"
+    },
+    {
+      "path": "editing/two_clips.ffconcat",
+      "role": "fixture",
+      "bytes": 208,
+      "sha256": "51ce67838452e0482f83af402bcc8040143e2736f518e20120079cd22faaf016"
+    },
+    {
+      "path": "images/alpha.png",
+      "role": "fixture",
+      "bytes": 375,
+      "sha256": "b37d8f61ed3dfd2a0fc3926cbcbb7102fc6af27f3a26c38a1355b1fb816dbd6c"
+    },
+    {
+      "path": "images/animated.apng",
+      "role": "fixture",
+      "bytes": 20869,
+      "sha256": "7e1d9a515ba834c092ffd92218d8f06d9d090b634517d9b20cc02d4852533c37"
+    },
+    {
+      "path": "images/animated.gif",
+      "role": "fixture",
+      "bytes": 27195,
+      "sha256": "066437419cb5f327901be524119e28b977a0cd0772e39ee01e7ef81f70cb66bc"
+    },
+    {
+      "path": "images/color.bmp",
+      "role": "fixture",
+      "bytes": 172854,
+      "sha256": "cbe914c06377f89e0efc4b169c2cee0af45ff34be832b641c164510aa885ba28"
+    },
+    {
+      "path": "images/color.jpg",
+      "role": "fixture",
+      "bytes": 7760,
+      "sha256": "9f88a1b1c188f5b1a8b16fb35f6ec35f7a3fae66089f99b3d2a91f5a92e35dc8"
+    },
+    {
+      "path": "images/color.png",
+      "role": "fixture",
+      "bytes": 7015,
+      "sha256": "3cf6829a9b2b4dd904f55771cfb08ac53b256e67a78db88aff1c296e1721e005"
+    },
+    {
+      "path": "images/color.tiff",
+      "role": "fixture",
+      "bytes": 174084,
+      "sha256": "26e83e31bcd392c9fe2d496b4da21e13ed80869ebf672062356caa620900863d"
+    },
+    {
+      "path": "images/color.webp",
+      "role": "fixture",
+      "bytes": 3760,
+      "sha256": "db8c26f0f69c985c65b0898291ab68e332e30e181eb4f75429b19eaef6524a01"
+    },
+    {
+      "path": "images/grayscale16.png",
+      "role": "fixture",
+      "bytes": 4358,
+      "sha256": "ccd66c420d215591d283a1db39cff53b0f0ec800c5bc665d3e6612e3bf124390"
+    },
+    {
+      "path": "images/sequence/frame_001.png",
+      "role": "sequence-frame",
+      "bytes": 2236,
+      "sha256": "d747014a23a4aa3162a1a7ffa15e46f7454de0a37a9a5820ab13f5a18208e321"
+    },
+    {
+      "path": "images/sequence/frame_002.png",
+      "role": "sequence-frame",
+      "bytes": 2223,
+      "sha256": "57328bab6ccf4dda2020e2a46d8fdfc65e0c3c6ad57727948f5f2e8b34e75627"
+    },
+    {
+      "path": "images/sequence/frame_003.png",
+      "role": "sequence-frame",
+      "bytes": 2156,
+      "sha256": "9df572bf8f6afa3570b3395f4ce7765a460ccee7c997e362e7f0759d7391b968"
+    },
+    {
+      "path": "images/sequence/frame_004.png",
+      "role": "sequence-frame",
+      "bytes": 2122,
+      "sha256": "3bef75bc24de72f433f1909e5be8e6064326bc25f82f0903fdef51f211904125"
+    },
+    {
+      "path": "invalid/empty.mp4",
+      "role": "fixture",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "invalid/malformed.srt",
+      "role": "fixture",
+      "bytes": 52,
+      "sha256": "339faf94b31aa80723768354aff8702f00c8815de5cd744ef3427cb187918335"
+    },
+    {
+      "path": "invalid/malformed_riff.wav",
+      "role": "fixture",
+      "bytes": 21,
+      "sha256": "4dab9099ed12fe6352d70b3e1395d9a0d63552a508859a4178fbee60188ce194"
+    },
+    {
+      "path": "invalid/missing_concat.ffconcat",
+      "role": "fixture",
+      "bytes": 47,
+      "sha256": "0b7444039c96c24c20d33c974afc648101a97f7cfd32483c42177919dc459a3f"
+    },
+    {
+      "path": "invalid/missing_segment.m3u8",
+      "role": "fixture",
+      "bytes": 78,
+      "sha256": "abb5fa02715fd89a2e04c6e55a5ba5a2d82b42c3f6391fd76943febb559d0b1b"
+    },
+    {
+      "path": "invalid/mp4_truncated_header.mp4",
+      "role": "fixture",
+      "bytes": 32,
+      "sha256": "b1c35f1e6d75af66f96c70ff2572346caa6812dee411ad1134cffb50e33fba5c"
+    },
+    {
+      "path": "invalid/random_seed_2026.bin",
+      "role": "fixture",
+      "bytes": 4096,
+      "sha256": "55b2a73979a3988949abed65c92a7cd695a61fb3c52fe20d05bb34c88c2dc3b3"
+    },
+    {
+      "path": "invalid/text_disguised_as_video.mp4",
+      "role": "fixture",
+      "bytes": 48,
+      "sha256": "989097fb296e6bb0edce5fb8e4d6a336e8317e4ff504bd0494334504d18feea2"
+    },
+    {
+      "path": "metadata/audio_unicode_tags.m4a",
+      "role": "fixture",
+      "bytes": 25337,
+      "sha256": "f0f3f57aea2df5fa26793b02d016a3bf22b78a70bf28a8f84b259365095d951e"
+    },
+    {
+      "path": "metadata/chapters.ffmetadata",
+      "role": "sidecar",
+      "bytes": 196,
+      "sha256": "e4c157a560e3731f4a00ba63b25dd7ea605e609811f7acc94d6f9e2106a60738"
+    },
+    {
+      "path": "metadata/mp3_cover_art.mp3",
+      "role": "fixture",
+      "bytes": 40856,
+      "sha256": "db3282c0ab1a082f1c7d64218b6459dceeb02329712b90f59eea9ae3df6a41c4"
+    },
+    {
+      "path": "metadata/mp4_embedded_subtitles.mp4",
+      "role": "fixture",
+      "bytes": 194459,
+      "sha256": "767ff56199979e27f616a9fe034d49a52e41836b8b6ac4d3037f68abc6487f63"
+    },
+    {
+      "path": "metadata/multitrack_chapters_attachment.mkv",
+      "role": "fixture",
+      "bytes": 236269,
+      "sha256": "241c9608d174deb2c702c6ffa17810711844242e36f8c15679ab136003fdd362"
+    },
+    {
+      "path": "metadata/subtitle_only.mks",
+      "role": "fixture",
+      "bytes": 647,
+      "sha256": "0c52837b4a754a7a380ccb49528e5a3458785a67a2d300057bd82a7301ae6711"
+    },
+    {
+      "path": "paths/clip [01] & 100% #1.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "paths/file with spaces.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "paths/long_directory_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/long_filename_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "paths/mp4_content_wrong_extension.dat",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "paths/no_extension",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "paths/日本語 café 🎬/映像.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "properties/anamorphic_pal.mkv",
+      "role": "fixture",
+      "bytes": 78339,
+      "sha256": "7b05291d05c9cba56a9f8e0da9d6a86d91e7d404004594d7ebc1a0500f223ce7"
+    },
+    {
+      "path": "properties/audio_delayed_250ms.mp4",
+      "role": "fixture",
+      "bytes": 59347,
+      "sha256": "143d951ae22c48e920ebe51d464c3cd838e433fc3b3a8035e3c96eef5da81564"
+    },
+    {
+      "path": "properties/audio_longer_than_video.mp4",
+      "role": "fixture",
+      "bytes": 44750,
+      "sha256": "3338449eef0cf9c5659adbbad78ac014eded2282946b23cf50cb19475da28b99"
+    },
+    {
+      "path": "properties/fragmented.mp4",
+      "role": "fixture",
+      "bytes": 193873,
+      "sha256": "dc3d68fa886a4efef2e7e9ddb97bf5060e111c22a4477ba2a2ca02020f6b824b"
+    },
+    {
+      "path": "properties/fullhd_1080p.mp4",
+      "role": "fixture",
+      "bytes": 155976,
+      "sha256": "9e60456342f84b901d8bf9efbaeef1e505ecf9574645ba1e1fe8076f8c26903b"
+    },
+    {
+      "path": "properties/hd_720p.mp4",
+      "role": "fixture",
+      "bytes": 159808,
+      "sha256": "cac92450e0b3bd24579d3f8f8be8a27d5966cbd47ae9820cdb8ff2e3517bad04"
+    },
+    {
+      "path": "properties/high_framerate_60fps.mp4",
+      "role": "fixture",
+      "bytes": 28952,
+      "sha256": "e7688b74b8294a17d235503dc97c638f69cce854534eca4ef76a652f0ea90188"
+    },
+    {
+      "path": "properties/interlaced_top_first.mpg",
+      "role": "fixture",
+      "bytes": 208896,
+      "sha256": "4184bbec7f3916b8dbfdefe05283474cf08bb923ebc306746164f6b595b6a871"
+    },
+    {
+      "path": "properties/long_gop_15s.mp4",
+      "role": "fixture",
+      "bytes": 213090,
+      "sha256": "b5d5b5c56f845a144d52fbed789aa466132b403e7045d6f2ca0f85c10a884b42"
+    },
+    {
+      "path": "properties/mp4_moov_at_end.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "bcc2a7d680b66da3deeca37ab60dec6d96191d10706ca4a9c033c3aa4478b1d2"
+    },
+    {
+      "path": "properties/nonzero_start_timestamp.ts",
+      "role": "fixture",
+      "bytes": 216388,
+      "sha256": "af236dd16a8b7d1076bfbe2d69f2644d5b6a9fd8aadb5079022762e6ef736eef"
+    },
+    {
+      "path": "properties/odd_dimensions.mkv",
+      "role": "fixture",
+      "bytes": 50538,
+      "sha256": "72a042b2817c9b0a86d0240a835d68c1d7ad37e38c8445413a0214d7c6a38e92"
+    },
+    {
+      "path": "properties/one_frame.mp4",
+      "role": "fixture",
+      "bytes": 3660,
+      "sha256": "75bb6ee697f9dea8eadca2e25fb8a7fe489c073244dc26f612ca454fadb5bc9b"
+    },
+    {
+      "path": "properties/portrait_9x16.mp4",
+      "role": "fixture",
+      "bytes": 20503,
+      "sha256": "fda89ab8a69bf0bdaa32bd6061fb80dcfd5524f350be716aef3bdbf486b89cae"
+    },
+    {
+      "path": "properties/rotated_90.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "d82e5365fc9c2cce63c3fcfbb1ae85e4780b65e1c6d17c2ff3759e3db1c8edce"
+    },
+    {
+      "path": "properties/uhd_4k_one_frame.mp4",
+      "role": "fixture",
+      "bytes": 130662,
+      "sha256": "168ef8a6a9b697eac5cda20a1c5c707c5616f0819a5aed725d11b0c9f95158e6"
+    },
+    {
+      "path": "properties/variable_frame_rate.mp4",
+      "role": "fixture",
+      "bytes": 34764,
+      "sha256": "ad4d5aaf380752c108940d924553556e8988dcea4a7677a57900e8081bf03fb6"
+    },
+    {
+      "path": "raw/h264_annexb.h264",
+      "role": "fixture",
+      "bytes": 154369,
+      "sha256": "b66b5fd8800984f5e977312a767ce88d7064a88e2c1f817ce4fc8687f31bf38f"
+    },
+    {
+      "path": "raw/hevc_annexb.hevc",
+      "role": "fixture",
+      "bytes": 28664,
+      "sha256": "0fa9a4fadd5a75b3b3b37873853fbd4251441005fe0200791dbeaa7399314b5c"
+    },
+    {
+      "path": "raw/pcm_s16le_mono_16k.pcm",
+      "role": "fixture",
+      "bytes": 32000,
+      "sha256": "fbdaaed8437ce2068c1fac9eec3489f79ee6048e39c2d8ffdd63a60a5460b301"
+    },
+    {
+      "path": "raw/yuv420p_160x90_12fps.yuv",
+      "role": "fixture",
+      "bytes": 259200,
+      "sha256": "b225b09c2ef74b040d503b9e25dd7743d0713a9064e82ad563325d3a167addec"
+    },
+    {
+      "path": "streaming/dash/chunk-stream0-00001.m4s",
+      "role": "streaming-member",
+      "bytes": 48409,
+      "sha256": "b31c062245c0d8d16f0b7246cee46d5980633d37209791cf62b0ede30aed54ce"
+    },
+    {
+      "path": "streaming/dash/chunk-stream0-00002.m4s",
+      "role": "streaming-member",
+      "bytes": 52080,
+      "sha256": "7f4c40c0e3dc880b9f0361aac375fa736187b600f95d7bdf30066a8c0975c132"
+    },
+    {
+      "path": "streaming/dash/chunk-stream0-00003.m4s",
+      "role": "streaming-member",
+      "bytes": 54909,
+      "sha256": "eb6a9fb5a8ef8dfa45340f1e081786d76a5957f3a19004b030728a94e13f697d"
+    },
+    {
+      "path": "streaming/dash/chunk-stream1-00001.m4s",
+      "role": "streaming-member",
+      "bytes": 11256,
+      "sha256": "df821b7ac2d43e1dc5445d7485411cc4464b3e4cba391e6045f72f9efde2e2a1"
+    },
+    {
+      "path": "streaming/dash/chunk-stream1-00002.m4s",
+      "role": "streaming-member",
+      "bytes": 12457,
+      "sha256": "620858dbbb12535013b0d924e6c6497560a906061faba46e2f538dae182b1759"
+    },
+    {
+      "path": "streaming/dash/chunk-stream1-00003.m4s",
+      "role": "streaming-member",
+      "bytes": 12420,
+      "sha256": "98a173790a18b0d3309b6f0377e4f308f9c26c44ed43aa81c8189ccf701a90f9"
+    },
+    {
+      "path": "streaming/dash/chunk-stream1-00004.m4s",
+      "role": "streaming-member",
+      "bytes": 1252,
+      "sha256": "343fadc92ea3f01b002970b1247ed162c891ff1c4494a35367da3ffd3f20cb40"
+    },
+    {
+      "path": "streaming/dash/init-stream0.m4s",
+      "role": "streaming-member",
+      "bytes": 833,
+      "sha256": "09caf6256dcc6ab32c7f126055eb021b555018d6ad9f5005c7831d15efbf2a9b"
+    },
+    {
+      "path": "streaming/dash/init-stream1.m4s",
+      "role": "streaming-member",
+      "bytes": 764,
+      "sha256": "12468cf09d454765ce54ea40a206bb7c07c8652a9217cdc6e3e53fb7a722fcdd"
+    },
+    {
+      "path": "streaming/dash/manifest.mpd",
+      "role": "fixture",
+      "bytes": 1937,
+      "sha256": "5316857b8ec1635b156ede14c17b584071852fbffdc80221a74bfca5eeade1ba"
+    },
+    {
+      "path": "streaming/hls_fmp4/index.m3u8",
+      "role": "fixture",
+      "bytes": 241,
+      "sha256": "3b29595c5c410a4f4cb8b1d2e950ce11bfeb24f7dd67c80e877b0df038b16d5e"
+    },
+    {
+      "path": "streaming/hls_fmp4/init.mp4",
+      "role": "streaming-member",
+      "bytes": 1372,
+      "sha256": "082581ff9a4745abf5f1686ee09bdd87aa13d66fc692e014a063b0ba2b923f01"
+    },
+    {
+      "path": "streaming/hls_fmp4/segment_000.m4s",
+      "role": "streaming-member",
+      "bytes": 59609,
+      "sha256": "d0783433bff20340db9175ff1aef7ac5f004b0e14128b953ad8bb585f481f0bf"
+    },
+    {
+      "path": "streaming/hls_fmp4/segment_001.m4s",
+      "role": "streaming-member",
+      "bytes": 64481,
+      "sha256": "ecfaee326504e0722e2778a5132c85ab9d98a174dc3c18a5017cca1c57604a52"
+    },
+    {
+      "path": "streaming/hls_fmp4/segment_002.m4s",
+      "role": "streaming-member",
+      "bytes": 68529,
+      "sha256": "ee1e38b34703a2436898a9050a3277744d9323216da8c6079dc05165f2a2464b"
+    },
+    {
+      "path": "streaming/hls_ts/index.m3u8",
+      "role": "fixture",
+      "bytes": 212,
+      "sha256": "e2921ec6d46bf1d70f82e6bfdbac3cc144c94022dbf7bf4ab6f34ea99f867acd"
+    },
+    {
+      "path": "streaming/hls_ts/segment_000.ts",
+      "role": "streaming-member",
+      "bytes": 64860,
+      "sha256": "d0d66611fd432da153b50cc5684de125685bcfcfab63fae3ac949d0477af1a70"
+    },
+    {
+      "path": "streaming/hls_ts/segment_001.ts",
+      "role": "streaming-member",
+      "bytes": 69560,
+      "sha256": "fc228b900549e016aa8564605b3d4ad96cfa4bef48ba5bd1c3df20a4a77552fd"
+    },
+    {
+      "path": "streaming/hls_ts/segment_002.ts",
+      "role": "streaming-member",
+      "bytes": 73132,
+      "sha256": "23d2e03ed9a477294a8b4bcfe98cccd5e09e2f214af242b57f5274452609b79a"
+    },
+    {
+      "path": "streaming/transport_stream.ts",
+      "role": "fixture",
+      "bytes": 216388,
+      "sha256": "39976f5f9be42dda0bc321416ae20979201d3424b72245017d0c426b6c3f63a3"
+    },
+    {
+      "path": "subtitles/captions.vtt",
+      "role": "fixture",
+      "bytes": 98,
+      "sha256": "0e9bd96ec9328eded189c903bf952b92e23f356c8b8af62d7d84c5a461464ce6"
+    },
+    {
+      "path": "subtitles/english.srt",
+      "role": "fixture",
+      "bytes": 133,
+      "sha256": "68473cb36037bdedb3dab89d568bc8a6dcb4d8c8bb9d72eb52d3c0ef467195c4"
+    },
+    {
+      "path": "subtitles/latin1.srt",
+      "role": "fixture",
+      "bytes": 56,
+      "sha256": "b37d600468b9870b0a44aac7755a6f4ddc7cc40c983e1e0ab1dff16c5f01a1df"
+    },
+    {
+      "path": "subtitles/styled.ass",
+      "role": "fixture",
+      "bytes": 694,
+      "sha256": "db8ab510723c5d9ba20a6503fd5871592f3f6fd54cfe2130eff10d311e5367e7"
+    },
+    {
+      "path": "subtitles/unicode_overlap.srt",
+      "role": "fixture",
+      "bytes": 152,
+      "sha256": "8e0be8ee370e683fbf66df2097e9c44c5323ef8e3d185d733c27126c74f24d88"
+    },
+    {
+      "path": "subtitles/utf8_bom_crlf.srt",
+      "role": "fixture",
+      "bytes": 163,
+      "sha256": "3b38808043bb8482abac008ca370680480ec45d2bb11093f816fcf6b0723a8a4"
+    },
+    {
+      "path": "video/av1_aac.mp4",
+      "role": "fixture",
+      "bytes": 22060,
+      "sha256": "860aae43de854141da886f36996e8f729fb4432a2e1166a8b6b491127a21935c"
+    },
+    {
+      "path": "video/ffv1_flac_lossless.mkv",
+      "role": "fixture",
+      "bytes": 576003,
+      "sha256": "43368c272adea7c70bf9399f82286884b50379a2f0603b194a605f544e53757c"
+    },
+    {
+      "path": "video/flv_mp3.flv",
+      "role": "fixture",
+      "bytes": 176334,
+      "sha256": "24affab8c3106a6dd63bcd56ca32cc14711b63c470d95e938ce97c41b10c243e"
+    },
+    {
+      "path": "video/h264_aac_stereo_faststart.mp4",
+      "role": "fixture",
+      "bytes": 193849,
+      "sha256": "6645453f2baa8d3bd18814e06e47680364cc4a5b7e0041f816c9ea673b44d175"
+    },
+    {
+      "path": "video/h264_baseline_video_only.mp4",
+      "role": "fixture",
+      "bytes": 46068,
+      "sha256": "42b11c99546b5fa10902a6a5792472d623c7b28ef9958af68ab963341f8b3667"
+    },
+    {
+      "path": "video/h264_high10.mp4",
+      "role": "fixture",
+      "bytes": 19831,
+      "sha256": "25511cf40039773f1288ab625cd0949489e86ecb8de1a47b763864ffc296bd27"
+    },
+    {
+      "path": "video/h264_high_bframes_ntsc.mp4",
+      "role": "fixture",
+      "bytes": 44191,
+      "sha256": "1e0c011b7ab72aa69d6d64088a8bc6a48ceabb47921855fd92f6617b44d1b157"
+    },
+    {
+      "path": "video/h264_rgb_screen_capture.mkv",
+      "role": "fixture",
+      "bytes": 58301,
+      "sha256": "c15e6c27d4e7d6a45434dfe57c0af27e45145fd2924d42db988fc1a178594c43"
+    },
+    {
+      "path": "video/hevc_main10_hdr_tags.mkv",
+      "role": "fixture",
+      "bytes": 20155,
+      "sha256": "72a8b8ab0cd60c757d1ffafd511a1d32ea0ddec37c97e61576dfea551bb60903"
+    },
+    {
+      "path": "video/hevc_main_aac.mp4",
+      "role": "fixture",
+      "bytes": 55576,
+      "sha256": "73ffd7c31fa029db9f2342f767fd74758469168d9f4cfd172b2559131bf9ceee"
+    },
+    {
+      "path": "video/mjpeg_pcm.avi",
+      "role": "fixture",
+      "bytes": 387384,
+      "sha256": "0f8dadcd9579f56e941d591f1ececa565e1347010b6b0e9289e8837520e84dda"
+    },
+    {
+      "path": "video/mobile_h263_aac.3gp",
+      "role": "fixture",
+      "bytes": 63438,
+      "sha256": "853a706dae65f9c29492215686c3dd6d62de9db84d6e764eb258d7d09169b779"
+    },
+    {
+      "path": "video/mpeg2_mp2.mpg",
+      "role": "fixture",
+      "bytes": 296960,
+      "sha256": "de61e4439cbe8cbd9094f4b5fed5543ab7f5a3ba6a805362a7ad8d9c0541b00c"
+    },
+    {
+      "path": "video/mpeg4_mp3.avi",
+      "role": "fixture",
+      "bytes": 196664,
+      "sha256": "9b88752cad51a4335b90a9ee2644203885659e7fd3bfdc9100fd30c0f1c1d2ba"
+    },
+    {
+      "path": "video/prores422_pcm.mov",
+      "role": "fixture",
+      "bytes": 847869,
+      "sha256": "e059c2b0f49cf526466f495ce313c0e5eb75a1c8193f36df460a818c766996d2"
+    },
+    {
+      "path": "video/prores4444_alpha.mov",
+      "role": "fixture",
+      "bytes": 6957,
+      "sha256": "2ef00f1ee0e9c86a949a015bf3e3749ed4e9bc3a8a4ec5c1e59d7e90337a991b"
+    },
+    {
+      "path": "video/theora_vorbis.ogv",
+      "role": "fixture",
+      "bytes": 92013,
+      "sha256": "cf813b25fa64e4f250ada08ad1b222873e429983e050e5d5702abe5ee8246eb2"
+    },
+    {
+      "path": "video/vp8_vorbis.webm",
+      "role": "fixture",
+      "bytes": 76011,
+      "sha256": "b1112752bf3d08c19ab03c094f5bc3522ab931e5a0401a8e9b40fb59785ba5ac"
+    },
+    {
+      "path": "video/vp9_10bit.mkv",
+      "role": "fixture",
+      "bytes": 28188,
+      "sha256": "49b93b7086090ad02fc68575fdb56ab2b12d5365814c3b605de17c1f757a4c36"
+    },
+    {
+      "path": "video/vp9_opus.webm",
+      "role": "fixture",
+      "bytes": 71473,
+      "sha256": "0390e09289a0ab012edaeb24ee9eab0e5df8dce62f9be4f0b69baa57f1c08727"
+    },
+    {
+      "path": "video/wmv2_wma.asf",
+      "role": "fixture",
+      "bytes": 176905,
+      "sha256": "0d7fdd311236cfcd60ee51d82762618399070ee7335f13e4bf30299d1bcc1630"
+    }
+  ],
+  "generation_commands": [
+    {
+      "purpose": "video/h264_aac_stereo_faststart.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=640x360:rate=24:duration=3",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=3",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-g",
+        "24",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "-movflags",
+        "+faststart",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4"
+      ]
+    },
+    {
+      "purpose": "video/h264_baseline_video_only.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-profile:v",
+        "baseline",
+        "-bf",
+        "0",
+        "-g",
+        "24",
+        "-an",
+        "${ROOT}\\video\\h264_baseline_video_only.mp4"
+      ]
+    },
+    {
+      "purpose": "video/h264_high_bframes_ntsc.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=30000/1001:duration=2",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-profile:v",
+        "high",
+        "-bf",
+        "3",
+        "-g",
+        "30",
+        "${ROOT}\\video\\h264_high_bframes_ntsc.mp4"
+      ]
+    },
+    {
+      "purpose": "video/hevc_main_aac.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:v",
+        "libx265",
+        "-preset",
+        "ultrafast",
+        "-crf",
+        "32",
+        "-x265-params",
+        "pools=1:frame-threads=1:log-level=error",
+        "-pix_fmt",
+        "yuv420p",
+        "-tag:v",
+        "hvc1",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "${ROOT}\\video\\hevc_main_aac.mp4"
+      ]
+    },
+    {
+      "purpose": "video/hevc_main10_hdr_tags.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-c:v",
+        "libx265",
+        "-preset",
+        "ultrafast",
+        "-crf",
+        "32",
+        "-x265-params",
+        "pools=1:frame-threads=1:log-level=error",
+        "-x265-params",
+        "pools=1:frame-threads=1:log-level=error:colorprim=bt2020:transfer=smpte2084:colormatrix=bt2020nc:hdr10=1:master-display=G(13250,34500)B(7500,3000)R(34000,16000)WP(15635,16450)L(10000000,1):max-cll=1000,400",
+        "-pix_fmt",
+        "yuv420p10le",
+        "-color_primaries",
+        "bt2020",
+        "-color_trc",
+        "smpte2084",
+        "-colorspace",
+        "bt2020nc",
+        "-color_range",
+        "tv",
+        "${ROOT}\\video\\hevc_main10_hdr_tags.mkv"
+      ]
+    },
+    {
+      "purpose": "video/vp8_vorbis.webm",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:v",
+        "libvpx",
+        "-deadline",
+        "realtime",
+        "-cpu-used",
+        "8",
+        "-b:v",
+        "250k",
+        "-c:a",
+        "libvorbis",
+        "-q:a",
+        "3",
+        "${ROOT}\\video\\vp8_vorbis.webm"
+      ]
+    },
+    {
+      "purpose": "video/vp9_opus.webm",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:v",
+        "libvpx-vp9",
+        "-deadline",
+        "realtime",
+        "-cpu-used",
+        "8",
+        "-b:v",
+        "200k",
+        "-c:a",
+        "libopus",
+        "-b:a",
+        "64k",
+        "${ROOT}\\video\\vp9_opus.webm"
+      ]
+    },
+    {
+      "purpose": "video/vp9_10bit.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-c:v",
+        "libvpx-vp9",
+        "-deadline",
+        "realtime",
+        "-cpu-used",
+        "8",
+        "-b:v",
+        "200k",
+        "-pix_fmt",
+        "yuv420p10le",
+        "${ROOT}\\video\\vp9_10bit.mkv"
+      ]
+    },
+    {
+      "purpose": "video/av1_aac.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=12:duration=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=1",
+        "-c:v",
+        "libaom-av1",
+        "-cpu-used",
+        "8",
+        "-row-mt",
+        "1",
+        "-crf",
+        "40",
+        "-b:v",
+        "0",
+        "-threads:v",
+        "2",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "${ROOT}\\video\\av1_aac.mp4"
+      ]
+    },
+    {
+      "purpose": "video/mpeg4_mp3.avi",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:v",
+        "mpeg4",
+        "-q:v",
+        "5",
+        "-c:a",
+        "libmp3lame",
+        "-b:a",
+        "96k",
+        "${ROOT}\\video\\mpeg4_mp3.avi"
+      ]
+    },
+    {
+      "purpose": "video/mpeg2_mp2.mpg",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=352x288:rate=25:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:v",
+        "mpeg2video",
+        "-b:v",
+        "600k",
+        "-c:a",
+        "mp2",
+        "-b:a",
+        "128k",
+        "-f",
+        "mpeg",
+        "${ROOT}\\video\\mpeg2_mp2.mpg"
+      ]
+    },
+    {
+      "purpose": "video/wmv2_wma.asf",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:v",
+        "wmv2",
+        "-b:v",
+        "300k",
+        "-c:a",
+        "wmav2",
+        "-b:a",
+        "96k",
+        "${ROOT}\\video\\wmv2_wma.asf"
+      ]
+    },
+    {
+      "purpose": "video/flv_mp3.flv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:v",
+        "flv",
+        "-b:v",
+        "300k",
+        "-c:a",
+        "libmp3lame",
+        "-b:a",
+        "96k",
+        "${ROOT}\\video\\flv_mp3.flv"
+      ]
+    },
+    {
+      "purpose": "video/theora_vorbis.ogv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:v",
+        "libtheora",
+        "-q:v",
+        "4",
+        "-c:a",
+        "libvorbis",
+        "-q:a",
+        "3",
+        "${ROOT}\\video\\theora_vorbis.ogv"
+      ]
+    },
+    {
+      "purpose": "video/mjpeg_pcm.avi",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=1",
+        "-c:v",
+        "mjpeg",
+        "-q:v",
+        "5",
+        "-pix_fmt",
+        "yuvj420p",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\video\\mjpeg_pcm.avi"
+      ]
+    },
+    {
+      "purpose": "video/prores422_pcm.mov",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=1",
+        "-c:v",
+        "prores_ks",
+        "-profile:v",
+        "2",
+        "-pix_fmt",
+        "yuv422p10le",
+        "-c:a",
+        "pcm_s24le",
+        "${ROOT}\\video\\prores422_pcm.mov"
+      ]
+    },
+    {
+      "purpose": "video/prores4444_alpha.mov",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=red@0.5:s=160x90:r=12:d=1,format=yuva444p10le",
+        "-c:v",
+        "prores_ks",
+        "-profile:v",
+        "4",
+        "-alpha_bits",
+        "16",
+        "-pix_fmt",
+        "yuva444p10le",
+        "${ROOT}\\video\\prores4444_alpha.mov"
+      ]
+    },
+    {
+      "purpose": "video/ffv1_flac_lossless.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=1",
+        "-c:v",
+        "ffv1",
+        "-level",
+        "3",
+        "-pix_fmt",
+        "yuv444p10le",
+        "-c:a",
+        "flac",
+        "${ROOT}\\video\\ffv1_flac_lossless.mkv"
+      ]
+    },
+    {
+      "purpose": "video/mobile_h263_aac.3gp",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=176x144:rate=15:duration=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=16000:d=1",
+        "-c:v",
+        "h263",
+        "-b:v",
+        "128k",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "${ROOT}\\video\\mobile_h263_aac.3gp"
+      ]
+    },
+    {
+      "purpose": "video/h264_high10.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p10le",
+        "-threads:v",
+        "2",
+        "${ROOT}\\video\\h264_high10.mp4"
+      ]
+    },
+    {
+      "purpose": "video/h264_rgb_screen_capture.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc=size=320x180:rate=12:duration=1",
+        "-c:v",
+        "libx264rgb",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "0",
+        "-threads:v",
+        "2",
+        "${ROOT}\\video\\h264_rgb_screen_capture.mkv"
+      ]
+    },
+    {
+      "purpose": "properties/long_gop_15s.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=12:duration=15",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-g",
+        "120",
+        "-keyint_min",
+        "120",
+        "-sc_threshold",
+        "0",
+        "-an",
+        "${ROOT}\\properties\\long_gop_15s.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/portrait_9x16.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=180x320:rate=24:duration=1",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-an",
+        "${ROOT}\\properties\\portrait_9x16.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/hd_720p.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=1280x720:rate=24:duration=1",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-an",
+        "${ROOT}\\properties\\hd_720p.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/fullhd_1080p.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=1920x1080:rate=24:duration=0.5",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-an",
+        "${ROOT}\\properties\\fullhd_1080p.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/uhd_4k_one_frame.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=3840x2160:rate=4:duration=0.25",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-an",
+        "${ROOT}\\properties\\uhd_4k_one_frame.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/high_framerate_60fps.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=60:duration=1",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-an",
+        "${ROOT}\\properties\\high_framerate_60fps.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/odd_dimensions.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc=size=321x181:rate=12:duration=1",
+        "-c:v",
+        "ffv1",
+        "-pix_fmt",
+        "yuv444p",
+        "${ROOT}\\properties\\odd_dimensions.mkv"
+      ]
+    },
+    {
+      "purpose": "properties/rotated_90.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-display_rotation",
+        "90",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "${ROOT}\\properties\\rotated_90.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/anamorphic_pal.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=720x576:rate=25:duration=1",
+        "-vf",
+        "setsar=16/15",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "${ROOT}\\properties\\anamorphic_pal.mkv"
+      ]
+    },
+    {
+      "purpose": "properties/interlaced_top_first.mpg",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=352x288:rate=50:duration=1",
+        "-vf",
+        "tinterlace=mode=interleave_top",
+        "-c:v",
+        "mpeg2video",
+        "-flags",
+        "+ilme+ildct",
+        "-top",
+        "1",
+        "-b:v",
+        "800k",
+        "-an",
+        "-f",
+        "mpeg",
+        "${ROOT}\\properties\\interlaced_top_first.mpg"
+      ]
+    },
+    {
+      "purpose": "properties/variable_frame_rate.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1.5",
+        "-vf",
+        "setpts=if(lt(N\\,12)\\,N/(12*TB)\\,(1+(N-12)/24)/TB)",
+        "-fps_mode",
+        "vfr",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-bf",
+        "0",
+        "${ROOT}\\properties\\variable_frame_rate.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/audio_delayed_250ms.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-itsoffset",
+        "0.25",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=1.75",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "${ROOT}\\properties\\audio_delayed_250ms.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/audio_longer_than_video.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "${ROOT}\\properties\\audio_longer_than_video.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/nonzero_start_timestamp.ts",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-output_ts_offset",
+        "5",
+        "-f",
+        "mpegts",
+        "${ROOT}\\properties\\nonzero_start_timestamp.ts"
+      ]
+    },
+    {
+      "purpose": "properties/mp4_moov_at_end.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "${ROOT}\\properties\\mp4_moov_at_end.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/fragmented.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-movflags",
+        "+frag_keyframe+empty_moov+default_base_moof",
+        "${ROOT}\\properties\\fragmented.mp4"
+      ]
+    },
+    {
+      "purpose": "properties/one_frame.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-threads:v",
+        "2",
+        "-an",
+        "${ROOT}\\properties\\one_frame.mp4"
+      ]
+    },
+    {
+      "purpose": "audio/pcm16_mono_8k.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=8000:d=2",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\pcm16_mono_8k.wav"
+      ]
+    },
+    {
+      "purpose": "audio/pcm16_stereo_44100.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\pcm16_stereo_44100.wav"
+      ]
+    },
+    {
+      "purpose": "audio/aiff_big_endian.aiff",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "pcm_s16be",
+        "${ROOT}\\audio\\aiff_big_endian.aiff"
+      ]
+    },
+    {
+      "purpose": "audio/pcm24_stereo_96k.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=96000:d=2",
+        "-c:a",
+        "pcm_s24le",
+        "${ROOT}\\audio\\pcm24_stereo_96k.wav"
+      ]
+    },
+    {
+      "purpose": "audio/pcm32_stereo_48k.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "pcm_s32le",
+        "${ROOT}\\audio\\pcm32_stereo_48k.wav"
+      ]
+    },
+    {
+      "purpose": "audio/float32_stereo.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "pcm_f32le",
+        "${ROOT}\\audio\\float32_stereo.wav"
+      ]
+    },
+    {
+      "purpose": "audio/pcm16_surround_71.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t)|0.15*sin(2*PI*880*t)|0.15*sin(2*PI*1100*t)|0.15*sin(2*PI*1320*t)|0.15*sin(2*PI*1540*t)|0.15*sin(2*PI*1760*t)|0.15*sin(2*PI*1980*t):s=48000:d=2",
+        "-c:a",
+        "pcm_s16le",
+        "-channel_layout",
+        "7.1",
+        "${ROOT}\\audio\\pcm16_surround_71.wav"
+      ]
+    },
+    {
+      "purpose": "audio/flac_24bit_96k.flac",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=96000:d=2",
+        "-c:a",
+        "flac",
+        "-sample_fmt",
+        "s32",
+        "-bits_per_raw_sample",
+        "24",
+        "${ROOT}\\audio\\flac_24bit_96k.flac"
+      ]
+    },
+    {
+      "purpose": "audio/alac_lossless.m4a",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "alac",
+        "${ROOT}\\audio\\alac_lossless.m4a"
+      ]
+    },
+    {
+      "purpose": "audio/mp3_cbr_128k.mp3",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "libmp3lame",
+        "-b:a",
+        "128k",
+        "${ROOT}\\audio\\mp3_cbr_128k.mp3"
+      ]
+    },
+    {
+      "purpose": "audio/mp3_vbr.mp3",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "libmp3lame",
+        "-q:a",
+        "2",
+        "${ROOT}\\audio\\mp3_vbr.mp3"
+      ]
+    },
+    {
+      "purpose": "audio/aac_lc.m4a",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "${ROOT}\\audio\\aac_lc.m4a"
+      ]
+    },
+    {
+      "purpose": "audio/aac_adts.aac",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "-f",
+        "adts",
+        "${ROOT}\\audio\\aac_adts.aac"
+      ]
+    },
+    {
+      "purpose": "audio/opus.ogg",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "libopus",
+        "-b:a",
+        "64k",
+        "${ROOT}\\audio\\opus.ogg"
+      ]
+    },
+    {
+      "purpose": "audio/vorbis.ogg",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "libvorbis",
+        "-q:a",
+        "3",
+        "${ROOT}\\audio\\vorbis.ogg"
+      ]
+    },
+    {
+      "purpose": "audio/wma.wma",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=44100:d=2",
+        "-c:a",
+        "wmav2",
+        "-b:a",
+        "128k",
+        "${ROOT}\\audio\\wma.wma"
+      ]
+    },
+    {
+      "purpose": "audio/ac3_surround_51.ac3",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t)|0.15*sin(2*PI*880*t)|0.15*sin(2*PI*1100*t)|0.15*sin(2*PI*1320*t)|0.15*sin(2*PI*1540*t):s=48000:d=2",
+        "-c:a",
+        "ac3",
+        "-channel_layout",
+        "5.1",
+        "-b:a",
+        "384k",
+        "${ROOT}\\audio\\ac3_surround_51.ac3"
+      ]
+    },
+    {
+      "purpose": "audio/eac3_surround_51.eac3",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t)|0.15*sin(2*PI*880*t)|0.15*sin(2*PI*1100*t)|0.15*sin(2*PI*1320*t)|0.15*sin(2*PI*1540*t):s=48000:d=2",
+        "-c:a",
+        "eac3",
+        "-channel_layout",
+        "5.1",
+        "-b:a",
+        "384k",
+        "${ROOT}\\audio\\eac3_surround_51.eac3"
+      ]
+    },
+    {
+      "purpose": "audio/dts_surround_51.dts",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t)|0.15*sin(2*PI*880*t)|0.15*sin(2*PI*1100*t)|0.15*sin(2*PI*1320*t)|0.15*sin(2*PI*1540*t):s=48000:d=2",
+        "-c:a",
+        "dca",
+        "-strict",
+        "-2",
+        "-channel_layout",
+        "5.1(side)",
+        "-b:a",
+        "768k",
+        "${ROOT}\\audio\\dts_surround_51.dts"
+      ]
+    },
+    {
+      "purpose": "audio/amr_nb_voice.amr",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=8000:d=2",
+        "-c:a",
+        "libopencore_amrnb",
+        "-b:a",
+        "12.2k",
+        "${ROOT}\\audio\\amr_nb_voice.amr"
+      ]
+    },
+    {
+      "purpose": "audio/mp2.mp2",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "mp2",
+        "-b:a",
+        "128k",
+        "${ROOT}\\audio\\mp2.mp2"
+      ]
+    },
+    {
+      "purpose": "audio/g711_mulaw.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=8000:d=2",
+        "-c:a",
+        "pcm_mulaw",
+        "${ROOT}\\audio\\g711_mulaw.wav"
+      ]
+    },
+    {
+      "purpose": "audio/g711_alaw.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=8000:d=2",
+        "-c:a",
+        "pcm_alaw",
+        "${ROOT}\\audio\\g711_alaw.wav"
+      ]
+    },
+    {
+      "purpose": "audio/silence.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "anullsrc=r=48000:cl=stereo",
+        "-t",
+        "1",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\silence.wav"
+      ]
+    },
+    {
+      "purpose": "audio/impulse_at_500ms.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=if(eq(n\\,24000)\\,0.8\\,0):s=48000:d=1",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\impulse_at_500ms.wav"
+      ]
+    },
+    {
+      "purpose": "audio/quiet_minus40db.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.01*sin(2*PI*440*t):s=48000:d=1",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\quiet_minus40db.wav"
+      ]
+    },
+    {
+      "purpose": "audio/clipped.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=1.4*sin(2*PI*440*t):s=48000:d=1",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\clipped.wav"
+      ]
+    },
+    {
+      "purpose": "audio/very_short_10ms.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=48000:d=0.01",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\very_short_10ms.wav"
+      ]
+    },
+    {
+      "purpose": "audio/stereo_distinct_channels.wav",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "pcm_s16le",
+        "${ROOT}\\audio\\stereo_distinct_channels.wav"
+      ]
+    },
+    {
+      "purpose": "images/color.png",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "png",
+        "-pix_fmt",
+        "rgb24",
+        "-update",
+        "1",
+        "${ROOT}\\images\\color.png"
+      ]
+    },
+    {
+      "purpose": "images/color.jpg",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "mjpeg",
+        "-pix_fmt",
+        "yuvj420p",
+        "-update",
+        "1",
+        "${ROOT}\\images\\color.jpg"
+      ]
+    },
+    {
+      "purpose": "images/color.bmp",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "bmp",
+        "-pix_fmt",
+        "bgr24",
+        "-update",
+        "1",
+        "${ROOT}\\images\\color.bmp"
+      ]
+    },
+    {
+      "purpose": "images/color.tiff",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "tiff",
+        "-pix_fmt",
+        "rgb24",
+        "-update",
+        "1",
+        "${ROOT}\\images\\color.tiff"
+      ]
+    },
+    {
+      "purpose": "images/color.webp",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "libwebp",
+        "-pix_fmt",
+        "yuv420p",
+        "-update",
+        "1",
+        "${ROOT}\\images\\color.webp"
+      ]
+    },
+    {
+      "purpose": "images/alpha.png",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=blue@0.25:s=160x90:r=1,format=rgba",
+        "-frames:v",
+        "1",
+        "-c:v",
+        "png",
+        "-update",
+        "1",
+        "${ROOT}\\images\\alpha.png"
+      ]
+    },
+    {
+      "purpose": "images/grayscale16.png",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=320x180:rate=24:duration=2",
+        "-frames:v",
+        "1",
+        "-pix_fmt",
+        "gray16be",
+        "-c:v",
+        "png",
+        "-update",
+        "1",
+        "${ROOT}\\images\\grayscale16.png"
+      ]
+    },
+    {
+      "purpose": "images/animated.gif",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=160x90:rate=10:duration=1",
+        "-vf",
+        "split[a][b];[a]palettegen[p];[b][p]paletteuse",
+        "-loop",
+        "0",
+        "${ROOT}\\images\\animated.gif"
+      ]
+    },
+    {
+      "purpose": "images/animated.apng",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=160x90:rate=10:duration=1",
+        "-c:v",
+        "apng",
+        "-plays",
+        "0",
+        "-f",
+        "apng",
+        "${ROOT}\\images\\animated.apng"
+      ]
+    },
+    {
+      "purpose": "four-frame PNG sequence",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=160x90:rate=4:duration=1",
+        "-frames:v",
+        "4",
+        "-c:v",
+        "png",
+        "${ROOT}\\images\\sequence\\frame_%03d.png"
+      ]
+    },
+    {
+      "purpose": "raw/yuv420p_160x90_12fps.yuv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=160x90:rate=12:duration=1",
+        "-c:v",
+        "rawvideo",
+        "-pix_fmt",
+        "yuv420p",
+        "-f",
+        "rawvideo",
+        "${ROOT}\\raw\\yuv420p_160x90_12fps.yuv"
+      ]
+    },
+    {
+      "purpose": "raw/pcm_s16le_mono_16k.pcm",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t):s=16000:d=1",
+        "-c:a",
+        "pcm_s16le",
+        "-f",
+        "s16le",
+        "${ROOT}\\raw\\pcm_s16le_mono_16k.pcm"
+      ]
+    },
+    {
+      "purpose": "raw/h264_annexb.h264",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0:v:0",
+        "-c:v",
+        "copy",
+        "-bsf:v",
+        "h264_mp4toannexb",
+        "-f",
+        "h264",
+        "${ROOT}\\raw\\h264_annexb.h264"
+      ]
+    },
+    {
+      "purpose": "raw/hevc_annexb.hevc",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\hevc_main_aac.mp4",
+        "-map",
+        "0:v:0",
+        "-c:v",
+        "copy",
+        "-bsf:v",
+        "hevc_mp4toannexb",
+        "-f",
+        "hevc",
+        "${ROOT}\\raw\\hevc_annexb.hevc"
+      ]
+    },
+    {
+      "purpose": "metadata/multitrack_chapters_attachment.mkv",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=880:sample_rate=48000:duration=3",
+        "-i",
+        "${ROOT}\\subtitles\\english.srt",
+        "-i",
+        "${ROOT}\\subtitles\\styled.ass",
+        "-i",
+        "${ROOT}\\metadata\\chapters.ffmetadata",
+        "-map",
+        "0:v:0",
+        "-map",
+        "0:a:0",
+        "-map",
+        "1:a:0",
+        "-map",
+        "2:s:0",
+        "-map",
+        "3:s:0",
+        "-map_metadata",
+        "4",
+        "-map_chapters",
+        "4",
+        "-c:v",
+        "copy",
+        "-c:a:0",
+        "copy",
+        "-c:a:1",
+        "flac",
+        "-c:s:0",
+        "srt",
+        "-c:s:1",
+        "ass",
+        "-metadata:s:a:0",
+        "language=eng",
+        "-metadata:s:a:0",
+        "title=English stereo",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:1",
+        "language=jpn",
+        "-metadata:s:a:1",
+        "title=Japanese alternate mono",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:s:0",
+        "language=eng",
+        "-disposition:s:0",
+        "default",
+        "-metadata:s:s:1",
+        "language=jpn",
+        "-disposition:s:1",
+        "forced",
+        "-attach",
+        "${ROOT}\\attachments\\readme.txt",
+        "-metadata:s:t:0",
+        "mimetype=text/plain",
+        "-metadata:s:t:0",
+        "filename=readme.txt",
+        "${ROOT}\\metadata\\multitrack_chapters_attachment.mkv"
+      ]
+    },
+    {
+      "purpose": "metadata/mp4_embedded_subtitles.mp4",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-i",
+        "${ROOT}\\subtitles\\unicode_overlap.srt",
+        "-map",
+        "0",
+        "-map",
+        "1:s",
+        "-c",
+        "copy",
+        "-c:s",
+        "mov_text",
+        "-metadata:s:s:0",
+        "language=jpn",
+        "${ROOT}\\metadata\\mp4_embedded_subtitles.mp4"
+      ]
+    },
+    {
+      "purpose": "metadata/subtitle_only.mks",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\subtitles\\english.srt",
+        "-c:s",
+        "srt",
+        "-f",
+        "matroska",
+        "${ROOT}\\metadata\\subtitle_only.mks"
+      ]
+    },
+    {
+      "purpose": "metadata/audio_unicode_tags.m4a",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-f",
+        "lavfi",
+        "-i",
+        "aevalsrc=0.15*sin(2*PI*440*t)|0.15*sin(2*PI*660*t):s=48000:d=2",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "-metadata",
+        "title=日本語 Café 🎵",
+        "-metadata",
+        "artist=FFmpegSharpApi",
+        "-metadata",
+        "comment=Quotes \" & equals = semicolon ;",
+        "${ROOT}\\metadata\\audio_unicode_tags.m4a"
+      ]
+    },
+    {
+      "purpose": "metadata/mp3_cover_art.mp3",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\audio\\mp3_cbr_128k.mp3",
+        "-i",
+        "${ROOT}\\images\\color.jpg",
+        "-map",
+        "0:a",
+        "-map",
+        "1:v",
+        "-c",
+        "copy",
+        "-id3v2_version",
+        "3",
+        "-disposition:v",
+        "attached_pic",
+        "-metadata:s:v",
+        "title=Album cover",
+        "${ROOT}\\metadata\\mp3_cover_art.mp3"
+      ]
+    },
+    {
+      "purpose": "streaming/transport_stream.ts",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-f",
+        "mpegts",
+        "${ROOT}\\streaming\\transport_stream.ts"
+      ]
+    },
+    {
+      "purpose": "streaming/hls_ts/index.m3u8",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-f",
+        "hls",
+        "-hls_time",
+        "1",
+        "-hls_list_size",
+        "0",
+        "-hls_playlist_type",
+        "vod",
+        "-hls_segment_type",
+        "mpegts",
+        "-hls_segment_filename",
+        "${ROOT}\\streaming\\hls_ts\\segment_%03d.ts",
+        "${ROOT}\\streaming\\hls_ts\\index.m3u8"
+      ]
+    },
+    {
+      "purpose": "streaming/hls_fmp4/index.m3u8",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-f",
+        "hls",
+        "-hls_time",
+        "1",
+        "-hls_list_size",
+        "0",
+        "-hls_playlist_type",
+        "vod",
+        "-hls_segment_type",
+        "fmp4",
+        "-hls_segment_filename",
+        "${ROOT}\\streaming\\hls_fmp4\\segment_%03d.m4s",
+        "-hls_fmp4_init_filename",
+        "init.mp4",
+        "${ROOT}\\streaming\\hls_fmp4\\index.m3u8"
+      ]
+    },
+    {
+      "purpose": "streaming/dash/manifest.mpd",
+      "argv": [
+        "${FFMPEG}",
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-filter_threads",
+        "1",
+        "-i",
+        "${ROOT}\\video\\h264_aac_stereo_faststart.mp4",
+        "-map",
+        "0",
+        "-c",
+        "copy",
+        "-f",
+        "dash",
+        "-seg_duration",
+        "1",
+        "-use_template",
+        "1",
+        "-use_timeline",
+        "1",
+        "${ROOT}\\streaming\\dash\\manifest.mpd"
+      ]
+    }
+  ]
+}

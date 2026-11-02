@@ -1,0 +1,35 @@
+<Project>
+
+  <!-- Shared metadata and build settings for every project in the repository. -->
+  <PropertyGroup>
+    <Authors>cloudcoderrr</Authors>
+    <Company>cloudcoderrr</Company>
+    <Product>FFmpegSharpApi</Product>
+    <Copyright>Copyright (c) 2026 cloudcoderrr</Copyright>
+    <RepositoryUrl>https://github.com/cloudcoderrr/FFmpegSharpApi</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/cloudcoderrr/FFmpegSharpApi</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <!-- Versioning: the upstream FFmpeg release drives the package base version. -->
+  <PropertyGroup>
+    <FFmpegVersion>9.0.1</FFmpegVersion>
+    <VersionPrefix>9.0.1</VersionPrefix>
+    <VersionSuffix Condition="'$(VersionSuffix)' == '' and '$(GITHUB_ACTIONS)' != 'true'">dev</VersionSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+</Project>
