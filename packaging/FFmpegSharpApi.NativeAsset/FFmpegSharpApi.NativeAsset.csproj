@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Generic native-asset package. Invoked once per platform family + license flavour by
+    build/pack.sh with properties:
+      PackageId, Description, PackageLicenseExpression, PackageVersion, NativeRoot
+    NativeRoot points to a folder laid out as <rid>/native/<files>, packed under runtimes/.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <PackageId Condition="'$(PackageId)' == ''">FFmpegSharpApi.NativeAsset</PackageId>
+    <NativeRoot Condition="'$(NativeRoot)' == ''">$(MSBuildProjectDirectory)/native</NativeRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(NativeRoot)/**/*" Pack="true" PackagePath="runtimes/" Condition="Exists('$(NativeRoot)')" />
+    <None Include="$(MSBuildProjectDirectory)/../_._" Pack="true" PackagePath="lib/netstandard2.0/_._" />
+  </ItemGroup>
+
+</Project>

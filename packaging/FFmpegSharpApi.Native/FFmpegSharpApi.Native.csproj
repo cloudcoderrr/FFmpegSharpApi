@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Convenience meta-package: pulls in the managed bindings plus the native binaries for
+    every supported platform. Invoked by build/pack.sh with:
+      PackageId (FFmpegSharpApi.Native or FFmpegSharpApi.Native.GPL),
+      PackageLicenseExpression, PackageVersion, DependencyVersion, NativeFlavorSuffix ('' or '.GPL')
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <PackageId Condition="'$(PackageId)' == ''">FFmpegSharpApi.Native</PackageId>
+    <Description Condition="'$(Description)' == ''">FFmpeg 9.0 for .NET: managed bindings plus native binaries for Windows, Linux and macOS.</Description>
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">LGPL-3.0-or-later</PackageLicenseExpression>
+    <DependencyVersion Condition="'$(DependencyVersion)' == ''">$(VersionPrefix)</DependencyVersion>
+    <NativeFlavorSuffix Condition="'$(NativeFlavorSuffix)' == ''"></NativeFlavorSuffix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildProjectDirectory)/../_._" Pack="true" PackagePath="lib/netstandard2.0/_._" />
+    <PackageReference Include="FFmpegSharpApi" Version="$(DependencyVersion)" />
+  </ItemGroup>
+
+  <!-- Desktop native assets. Mobile families are added as they come online. -->
+  <ItemGroup>
+    <PackageReference Include="FFmpegSharpApi.Native.Windows$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
+    <PackageReference Include="FFmpegSharpApi.Native.Linux$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
+    <PackageReference Include="FFmpegSharpApi.Native.macOS$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
+  </ItemGroup>
+
+</Project>
