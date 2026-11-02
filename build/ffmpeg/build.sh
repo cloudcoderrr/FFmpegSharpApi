@@ -97,25 +97,31 @@ cfg+=($(ffmpeg_dep_flags))
 OUT_RID="$OUTDIR/$LICENSE/$RID"
 rm -rf "$OUT_RID"; mkdir -p "$OUT_RID/lib"
 
-# Android forbids versioned sonames in an APK, so collapse libavcodec.so.63 -> libavcodec.so
-# and rewrite the soname and NEEDED entries to match.
+# Android forbids versioned sonames in an APK. FFmpeg's android build normally emits
+# unversioned libXXX.so already; copy those, collapse any versioned ones, and normalise
+# the soname and NEEDED entries so the dynamic linker resolves them inside the APK.
 _stage_android_so() {
   local real base stem f need newneed
+  shopt -s nullglob
+  for real in "$PREFIX"/lib/libav*.so "$PREFIX"/lib/libsw*.so; do
+    [ -L "$real" ] && continue
+    cp -v "$real" "$OUT_RID/lib/"
+  done
   for real in "$PREFIX"/lib/libav*.so.* "$PREFIX"/lib/libsw*.so.*; do
-    [ -e "$real" ] || continue
     [ -L "$real" ] && continue
     base="$(basename "$real")"; stem="${base%%.so.*}"
     cp -v "$real" "$OUT_RID/lib/$stem.so"
   done
   for f in "$OUT_RID"/lib/*.so; do
-    patchelf --set-soname "$(basename "$f")" "$f"
+    patchelf --set-soname "$(basename "$f")" "$f" || true
     while read -r need; do
       case "$need" in
-        libav*.so.*|libsw*.so.*) newneed="${need%%.so.*}.so"; patchelf --replace-needed "$need" "$newneed" "$f" ;;
+        libav*.so.*|libsw*.so.*) newneed="${need%%.so.*}.so"; patchelf --replace-needed "$need" "$newneed" "$f" || true ;;
       esac
     done < <(patchelf --print-needed "$f")
     strip_binary "$STRIP" "$f"
   done
+  shopt -u nullglob
 }
 
 stage_shared() {
