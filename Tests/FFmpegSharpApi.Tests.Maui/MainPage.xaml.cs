@@ -33,6 +33,7 @@ public partial class MainPage : ContentPage
             SummaryLabel.Text = $"Total={summary.Total}  Passed={summary.Passed}  Failed={summary.Failed}  Skipped={summary.Skipped}";
             await MauiTestRunner.WriteResultsAsync(summary);
             Console.WriteLine("##MOBILE_LOGCOUNT## " + FFmpegSharpApi.FFmpegLog.CallbackCount);
+            Console.WriteLine("##MOBILE_LOGREG## " + (FFmpegSharpApi.FFmpegLog.NativeRegistrationStatus ?? "(default)"));
             foreach (var f in summary.Results.Where(r => r.Outcome == "Failed").Take(3))
                 Console.WriteLine($"##MOBILE_FAIL## {f.Name} :: {f.Message}");
             ReportToCi($"Total={summary.Total} Passed={summary.Passed} Failed={summary.Failed} Skipped={summary.Skipped}",

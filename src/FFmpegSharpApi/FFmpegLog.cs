@@ -29,6 +29,9 @@ public static unsafe class FFmpegLog
     /// <summary>Number of times the native callback has been invoked (diagnostic).</summary>
     public static long CallbackCount { get; private set; }
 
+    /// <summary>Outcome of installing the native log callback (diagnostic).</summary>
+    public static string? NativeRegistrationStatus { get; private set; }
+
     /// <summary>
     /// Installs the managed log callback and sets the FFmpeg log level.
     /// </summary>
@@ -101,14 +104,19 @@ public static unsafe class FFmpegLog
                 ? NativeLibrary.Load("libavutil.so")
                 : NativeLibrary.Load("__Internal");
             if (!NativeLibrary.TryGetExport(handle, "av_log_set_callback", out nint setCallback))
+            {
+                NativeRegistrationStatus = "export av_log_set_callback not found";
                 return false;
+            }
 
             delegate* unmanaged[Cdecl]<void*, int, byte*, byte*, void> cb = &NativeLogCallback;
             ((delegate* unmanaged[Cdecl]<nint, void>)setCallback)((nint)cb);
+            NativeRegistrationStatus = "registered";
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            NativeRegistrationStatus = ex.GetType().Name + ": " + ex.Message;
             return false;
         }
     }
