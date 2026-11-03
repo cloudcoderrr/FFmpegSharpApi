@@ -27,6 +27,8 @@ public static class MauiTestRunner
 
     public static string OutputDirectory { get; private set; } = string.Empty;
 
+    private static string _assemblyPath = string.Empty;
+
     public static async Task PrepareAsync()
     {
         if (_prepared)
@@ -41,6 +43,20 @@ public static class MauiTestRunner
             archive.ExtractToDirectory(dataDir, overwriteFiles: true);
         }
 
+        // xunit's controller needs a physical assembly file; embedded mobile
+        // assemblies have no on-disk path, so extract the bundled copy.
+        _assemblyPath = Path.Combine(FileSystem.CacheDirectory, "FFmpegSharpApi.Tests.Core.dll");
+        try
+        {
+            await using var dll = await FileSystem.OpenAppPackageFileAsync("FFmpegSharpApi.Tests.Core.dll");
+            await using var dst = File.Create(_assemblyPath);
+            await dll.CopyToAsync(dst);
+        }
+        catch (FileNotFoundException)
+        {
+            _assemblyPath = string.Empty;
+        }
+
         OutputDirectory = Path.Combine(FileSystem.AppDataDirectory, "test-output");
         FFmpegSharpApi.Tests.Core.TestPaths.Configure(dataDir, OutputDirectory);
         _prepared = true;
@@ -49,7 +65,9 @@ public static class MauiTestRunner
     public static MauiRunSummary RunAll(Action<MauiTestItem>? onResult = null)
     {
         var assembly = typeof(FFmpegSharpApi.Tests.Core.FixtureTests).Assembly;
-        var location = assembly.Location;
+        var location = !string.IsNullOrEmpty(_assemblyPath) && File.Exists(_assemblyPath)
+            ? _assemblyPath
+            : assembly.Location;
         if (string.IsNullOrEmpty(location))
             location = assembly.GetName().Name + ".dll";
 
