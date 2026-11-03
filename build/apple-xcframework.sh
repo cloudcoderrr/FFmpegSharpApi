@@ -34,15 +34,15 @@ combine_slice() {
 
   local tmp objdir a d o h b i=0
   tmp="$(mktemp -d)"; objdir="$tmp/objs"; mkdir -p "$objdir"
-  declare -A seen=()
+  local seenfile="$tmp/seen"; : > "$seenfile"
   local keep=()
   for a in "${archives[@]}"; do
     d="$tmp/x$i"; mkdir -p "$d"; ( cd "$d" && ar x "$a" )
     shopt -s nullglob
     for o in "$d"/*.o; do
       h="$(shasum "$o" | cut -d' ' -f1)"
-      [ -n "${seen[$h]:-}" ] && continue
-      seen[$h]=1
+      if grep -qxF "$h" "$seenfile"; then continue; fi
+      echo "$h" >> "$seenfile"
       b="lib${i}_$(basename "$o")"
       cp "$o" "$objdir/$b"
       keep+=("$objdir/$b")
