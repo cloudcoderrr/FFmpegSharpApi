@@ -106,7 +106,7 @@ public static class MauiTestRunner
             summary.Failed == 0 ? "PASS" : "FAIL");
     }
 
-    private sealed class DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IDisposable
+    private sealed class DiscoverySink : Xunit.Sdk.LongLivedMarshalByRefObject, IMessageSink, IDisposable
     {
         private readonly List<ITestCase> _cases;
         public ManualResetEvent Finished { get; } = new(false);
@@ -124,7 +124,7 @@ public static class MauiTestRunner
         public void Dispose() => Finished.Dispose();
     }
 
-    private sealed class ExecutionSink : LongLivedMarshalByRefObject, IMessageSink, IDisposable
+    private sealed class ExecutionSink : Xunit.Sdk.LongLivedMarshalByRefObject, IMessageSink, IDisposable
     {
         private readonly Action<MauiTestItem> _record;
         public ManualResetEvent Finished { get; } = new(false);
@@ -155,7 +155,7 @@ public static class MauiTestRunner
         public void Dispose() => Finished.Dispose();
     }
 
-    private sealed class NullSink : LongLivedMarshalByRefObject, IMessageSink
+    private sealed class NullSink : Xunit.Sdk.LongLivedMarshalByRefObject, IMessageSink
     {
         public bool OnMessage(IMessageSinkMessage message) => true;
     }
