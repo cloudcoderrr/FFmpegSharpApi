@@ -5,9 +5,14 @@
     every supported platform. Invoked by build/pack.sh with:
       PackageId (FFmpegSharpApi.Native or FFmpegSharpApi.Native.GPL),
       PackageLicenseExpression, PackageVersion, DependencyVersion, NativeFlavorSuffix ('' or '.GPL')
+    Set MetaFull=true (only possible on macOS, with the mobile workloads) to emit the
+    multi-targeted package whose per-TFM dependency groups cover desktop, Android, iOS and
+    Mac Catalyst. The default desktop-only build (net10.0) is used for the GPL flavour.
   -->
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <MetaFull Condition="'$(MetaFull)' == ''">false</MetaFull>
+    <TargetFramework Condition="'$(MetaFull)' != 'true'">net10.0</TargetFramework>
+    <TargetFrameworks Condition="'$(MetaFull)' == 'true'">net10.0;net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSymbols>false</IncludeSymbols>
@@ -16,10 +21,20 @@
     <IsPackable>true</IsPackable>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <PackageId Condition="'$(PackageId)' == ''">FFmpegSharpApi.Native</PackageId>
-    <Description Condition="'$(Description)' == ''">FFmpeg 9.0 for .NET: managed bindings plus native binaries for Windows, Linux and macOS.</Description>
+    <Description Condition="'$(Description)' == ''">FFmpeg 9.0 for .NET: managed bindings plus native binaries for Windows, Linux, macOS, Android, iOS and Mac Catalyst.</Description>
     <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">LGPL-3.0-or-later</PackageLicenseExpression>
     <DependencyVersion Condition="'$(DependencyVersion)' == ''">$(VersionPrefix)</DependencyVersion>
     <NativeFlavorSuffix Condition="'$(NativeFlavorSuffix)' == ''"></NativeFlavorSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
+    <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst'))">
+    <SupportedOSPlatformVersion>14.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,11 +42,21 @@
     <PackageReference Include="FFmpegSharpApi" Version="$(DependencyVersion)" />
   </ItemGroup>
 
-  <!-- Desktop native assets. Mobile families are added as they come online. -->
-  <ItemGroup>
+  <!-- Desktop (plain net10.0): RID-based shared-library packages. -->
+  <ItemGroup Condition="!$(TargetFramework.Contains('-android')) And !$(TargetFramework.Contains('-ios')) And !$(TargetFramework.Contains('-maccatalyst'))">
     <PackageReference Include="FFmpegSharpApi.Native.Windows$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
     <PackageReference Include="FFmpegSharpApi.Native.Linux$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
     <PackageReference Include="FFmpegSharpApi.Native.macOS$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
+  </ItemGroup>
+
+  <!-- Android: NDK shared libraries. -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+    <PackageReference Include="FFmpegSharpApi.Native.Android$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
+  </ItemGroup>
+
+  <!-- iOS + Mac Catalyst: static xcframework. -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
+    <PackageReference Include="FFmpegSharpApi.Native.Apple$(NativeFlavorSuffix)" Version="$(DependencyVersion)" />
   </ItemGroup>
 
 </Project>

@@ -118,6 +118,12 @@ _dep_x265() {
   rm -rf "$WORK/x265/_build"
   local extra=()
   case "$ARCH" in arm|arm64) extra+=(-DCROSS_COMPILE_ARM=ON -DENABLE_ASSEMBLY=OFF) ;; esac
+  # x265's x86_64 nasm assembly links fine on Windows/Linux, but the resulting
+  # static lib fails FFmpeg's pkg-config detection link under the Apple cross
+  # toolchain. Disable assembly for Apple x86_64 (arm64 already has it off).
+  if [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ]; then
+    case "$ARCH" in x86_64|x64|i686|i386) extra+=(-DENABLE_ASSEMBLY=OFF) ;; esac
+  fi
   # shellcheck disable=SC2046
   run cmake -S "$WORK/x265/source" -B "$WORK/x265/_build" -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $(_cmake_toolchain_arg) \
