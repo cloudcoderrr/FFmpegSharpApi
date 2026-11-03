@@ -52,11 +52,14 @@ public static unsafe class FFmpegLog
 
             _toConsole = toConsole;
 #if ANDROID || IOS || MACCATALYST
-            // MonoVM cannot invoke a plain managed delegate from native code, so bind the
-            // FFmpeg callback to a natively-callable function pointer instead.
-            delegate* unmanaged[Cdecl]<void*, int, byte*, byte*, void> fp = &NativeLogCallback;
-            _callback = Marshal.GetDelegateForFunctionPointer<av_log_set_callback_callback>((IntPtr)fp);
-            ffmpeg.av_log_set_callback(_callback);
+            // MonoVM cannot invoke a plain managed delegate from native code, and routing a
+            // function pointer back through the managed binding re-marshals it. Call the raw
+            // native av_log_set_callback export with the UnmanagedCallersOnly pointer instead.
+            if (!TryRegisterNativeCallback())
+            {
+                _callback = Callback;
+                ffmpeg.av_log_set_callback(_callback);
+            }
 #else
             _callback = Callback;
             ffmpeg.av_log_set_callback(_callback);
@@ -86,6 +89,28 @@ public static unsafe class FFmpegLog
     {
         var fmt = Marshal.PtrToStringAnsi((IntPtr)format) ?? string.Empty;
         HandleLog(avcl, level, fmt, vl);
+    }
+
+    // Resolves the raw av_log_set_callback export and installs the native function pointer
+    // directly, bypassing the managed delegate marshalling that MonoVM cannot call back into.
+    private static bool TryRegisterNativeCallback()
+    {
+        try
+        {
+            nint handle = OperatingSystem.IsAndroid()
+                ? NativeLibrary.Load("libavutil.so")
+                : NativeLibrary.Load("__Internal");
+            if (!NativeLibrary.TryGetExport(handle, "av_log_set_callback", out nint setCallback))
+                return false;
+
+            delegate* unmanaged[Cdecl]<void*, int, byte*, byte*, void> cb = &NativeLogCallback;
+            ((delegate* unmanaged[Cdecl]<nint, void>)setCallback)((nint)cb);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 #endif
 
