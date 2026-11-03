@@ -54,19 +54,19 @@ public static unsafe class FFmpegLog
             }
 
             _toConsole = toConsole;
-#if ANDROID || IOS || MACCATALYST
-            // MonoVM cannot invoke a plain managed delegate from native code, and routing a
-            // function pointer back through the managed binding re-marshals it. Call the raw
-            // native av_log_set_callback export with the UnmanagedCallersOnly pointer instead.
-            if (!TryRegisterNativeCallback())
+            // MonoVM (Android/iOS/Mac Catalyst) cannot invoke a plain managed delegate from
+            // native code, so install a natively-callable function pointer there. Desktop
+            // CoreCLR uses the ordinary managed delegate.
+            if ((OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsMacCatalyst())
+                && TryRegisterNativeCallback())
+            {
+                _callback = null;
+            }
+            else
             {
                 _callback = Callback;
                 ffmpeg.av_log_set_callback(_callback);
             }
-#else
-            _callback = Callback;
-            ffmpeg.av_log_set_callback(_callback);
-#endif
         }
     }
 
@@ -86,7 +86,6 @@ public static unsafe class FFmpegLog
     private static void Callback(void* avcl, int level, string format, byte* vl)
         => HandleLog(avcl, level, format, vl);
 
-#if ANDROID || IOS || MACCATALYST
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void NativeLogCallback(void* avcl, int level, byte* format, byte* vl)
     {
@@ -120,7 +119,6 @@ public static unsafe class FFmpegLog
             return false;
         }
     }
-#endif
 
     private static void HandleLog(void* avcl, int level, string format, byte* vl)
     {
