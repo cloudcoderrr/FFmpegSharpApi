@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen.Abstractions;
 
@@ -50,8 +51,16 @@ public static unsafe class FFmpegLog
             }
 
             _toConsole = toConsole;
+#if ANDROID || IOS || MACCATALYST
+            // MonoVM cannot invoke a plain managed delegate from native code, so bind the
+            // FFmpeg callback to a natively-callable function pointer instead.
+            delegate* unmanaged[Cdecl]<void*, int, byte*, byte*, void> fp = &NativeLogCallback;
+            _callback = Marshal.GetDelegateForFunctionPointer<av_log_set_callback_callback>((IntPtr)fp);
+            ffmpeg.av_log_set_callback(_callback);
+#else
             _callback = Callback;
             ffmpeg.av_log_set_callback(_callback);
+#endif
         }
     }
 
@@ -69,6 +78,18 @@ public static unsafe class FFmpegLog
     }
 
     private static void Callback(void* avcl, int level, string format, byte* vl)
+        => HandleLog(avcl, level, format, vl);
+
+#if ANDROID || IOS || MACCATALYST
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void NativeLogCallback(void* avcl, int level, byte* format, byte* vl)
+    {
+        var fmt = Marshal.PtrToStringAnsi((IntPtr)format) ?? string.Empty;
+        HandleLog(avcl, level, fmt, vl);
+    }
+#endif
+
+    private static void HandleLog(void* avcl, int level, string format, byte* vl)
     {
         CallbackCount++;
         if (level > ffmpeg.av_log_get_level())
