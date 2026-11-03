@@ -45,17 +45,20 @@ combine_slice() {
   for a in "${work[@]}"; do
     local d="$tmp/x$i"; mkdir -p "$d"; ( cd "$d" && ar x "$a" )
     shopt -s nullglob
-    local o name hash
+    local o name syms sig
     for o in "$d"/*.o; do
       name="$(basename "$o")"
-      hash="$(shasum "$o" | cut -d' ' -f1)"
-      # Drop a member only when a byte-identical member of the same name was already
-      # kept in an earlier archive (FFmpeg's shared internals). Same-name but different
-      # content (e.g. dav1d vs swscale ops.o) are left in place.
-      if grep -qxF "$name|$hash" "$seen"; then
+      # Signature = the object's defined global symbols. FFmpeg compiles some shared
+      # internals (e.g. framepool.o) into several libs with identical symbols but
+      # differing content, so dedup by symbols, not bytes. Objects with distinct
+      # symbols (dav1d vs swscale ops.o) and symbol-less objects are always kept.
+      syms="$(nm -gP "$o" 2>/dev/null | awk '$2 != "U" && $2 != "" {print $1}' | sort -u)"
+      [ -n "$syms" ] || continue
+      sig="$(printf '%s' "$syms" | shasum | cut -d' ' -f1)"
+      if grep -qxF "$sig" "$seen"; then
         ar d "$a" "$name" 2>/dev/null || true
       else
-        echo "$name|$hash" >> "$seen"
+        echo "$sig" >> "$seen"
       fi
     done
     shopt -u nullglob
