@@ -19,15 +19,18 @@ FFLIBS="libavcodec libavdevice libavfilter libavformat libavutil libswresample l
 
 log() { printf '\033[1;36m[xcframework]\033[0m %s\n' "$*" >&2; }
 
-# combine_slice <rid> <output.a> : merge the FFmpeg static libs for one rid.
+# combine_slice <rid> <output.a> : merge all static libs (FFmpeg + its static
+# dependencies such as dav1d and libxml2) for one rid into a self-contained archive.
 combine_slice() {
   local rid="$1" out="$2" l
   local libs=()
-  for l in $FFLIBS; do
-    [ -f "$NATIVE_DIR/$rid/lib/$l.a" ] && libs+=("$NATIVE_DIR/$rid/lib/$l.a")
+  shopt -s nullglob
+  for l in "$NATIVE_DIR/$rid/lib/"*.a; do
+    libs+=("$l")
   done
+  shopt -u nullglob
   [ ${#libs[@]} -gt 0 ] || { log "no static libs for $rid"; return 1; }
-  log "merging $rid -> $(basename "$out")"
+  log "merging $rid (${libs[*]##*/}) -> $(basename "$out")"
   libtool -static -o "$out" "${libs[@]}"
 }
 
