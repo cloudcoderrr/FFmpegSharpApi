@@ -94,7 +94,7 @@ cfg+=($(ffmpeg_dep_flags))
 
 ( cd "$WORK/ffmpeg"
   log "configure ${cfg[*]}"
-  ./configure "${cfg[@]}"
+  ./configure "${cfg[@]}" || { echo "=== ffbuild/config.log (tail) ==="; tail -n 60 ffbuild/config.log 2>/dev/null; exit 1; }
   make -j"$(ncpu)"
   make install )
 
