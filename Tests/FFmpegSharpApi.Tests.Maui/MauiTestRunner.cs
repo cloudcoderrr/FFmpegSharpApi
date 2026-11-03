@@ -1,6 +1,7 @@
-using System.IO.Compression;
 using System.Text.Json;
-using Xunit.Runners;
+using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace FFmpegSharpApi.Tests.Maui;
 
@@ -18,16 +19,16 @@ public sealed class MauiRunSummary
 }
 
 /// <summary>
-/// Unpacks the bundled fixture data on device and runs the shared Tests.Core via the xUnit
-/// AssemblyRunner, writing results to the app data directory for CI retrieval.
+/// Unpacks the bundled fixture data on device and runs the shared Tests.Core suite against
+/// the loaded test assembly using xUnit's in-process reflection API (no assembly file is
+/// required, which is essential on mobile where managed assemblies are embedded in the app).
+/// Results are written to the app data directory for CI retrieval.
 /// </summary>
 public static class MauiTestRunner
 {
     private static bool _prepared;
 
     public static string OutputDirectory { get; private set; } = string.Empty;
-
-    private static string _assemblyPath = string.Empty;
 
     public static async Task PrepareAsync()
     {
@@ -39,22 +40,8 @@ public static class MauiTestRunner
         {
             Directory.CreateDirectory(dataDir);
             await using var zip = await FileSystem.OpenAppPackageFileAsync("testdata.zip");
-            using var archive = new ZipArchive(zip, ZipArchiveMode.Read);
+            using var archive = new System.IO.Compression.ZipArchive(zip, System.IO.Compression.ZipArchiveMode.Read);
             archive.ExtractToDirectory(dataDir, overwriteFiles: true);
-        }
-
-        // xunit's controller needs a physical assembly file; embedded mobile
-        // assemblies have no on-disk path, so extract the bundled copy.
-        _assemblyPath = Path.Combine(FileSystem.CacheDirectory, "FFmpegSharpApi.Tests.Core.dll");
-        try
-        {
-            await using var dll = await FileSystem.OpenAppPackageFileAsync("FFmpegSharpApi.Tests.Core.dll");
-            await using var dst = File.Create(_assemblyPath);
-            await dll.CopyToAsync(dst);
-        }
-        catch (FileNotFoundException)
-        {
-            _assemblyPath = string.Empty;
         }
 
         OutputDirectory = Path.Combine(FileSystem.AppDataDirectory, "test-output");
@@ -65,15 +52,7 @@ public static class MauiTestRunner
     public static MauiRunSummary RunAll(Action<MauiTestItem>? onResult = null)
     {
         var assembly = typeof(FFmpegSharpApi.Tests.Core.FixtureTests).Assembly;
-        var location = !string.IsNullOrEmpty(_assemblyPath) && File.Exists(_assemblyPath)
-            ? _assemblyPath
-            : assembly.Location;
-        if (string.IsNullOrEmpty(location))
-            location = assembly.GetName().Name + ".dll";
-
-        using var runner = AssemblyRunner.WithoutAppDomain(location);
         var results = new List<MauiTestItem>();
-        using var done = new ManualResetEventSlim(false);
 
         void Record(MauiTestItem item)
         {
@@ -82,13 +61,26 @@ public static class MauiTestRunner
             onResult?.Invoke(item);
         }
 
-        runner.OnTestPassed = i => Record(new MauiTestItem(i.TestDisplayName, "Passed", null));
-        runner.OnTestFailed = i => Record(new MauiTestItem(i.TestDisplayName, "Failed", i.ExceptionMessage));
-        runner.OnTestSkipped = i => Record(new MauiTestItem(i.TestDisplayName, "Skipped", i.SkipReason));
-        runner.OnExecutionComplete = _ => done.Set();
+        var diagnostics = new NullSink();
+        using var framework = new XunitTestFramework(diagnostics);
+        var assemblyInfo = Reflector.Wrap(assembly);
 
-        runner.Start();
-        done.Wait();
+        // --- discovery (reflection over the already-loaded assembly) ---
+        var testCases = new List<ITestCase>();
+        using (var discoverer = framework.GetDiscoverer(assemblyInfo))
+        using (var discoverySink = new DiscoverySink(testCases))
+        {
+            discoverer.Find(includeSourceInformation: false, discoverySink, TestFrameworkOptions.ForDiscovery());
+            discoverySink.Finished.WaitOne();
+        }
+
+        // --- execution ---
+        using (var executor = framework.GetExecutor(assembly.GetName()))
+        using (var executionSink = new ExecutionSink(Record))
+        {
+            executor.RunTests(testCases, executionSink, TestFrameworkOptions.ForExecution());
+            executionSink.Finished.WaitOne();
+        }
 
         return new MauiRunSummary
         {
@@ -111,5 +103,59 @@ public static class MauiTestRunner
         // Sentinel the CI harness waits on.
         await File.WriteAllTextAsync(Path.Combine(OutputDirectory, "DONE.txt"),
             summary.Failed == 0 ? "PASS" : "FAIL");
+    }
+
+    private sealed class DiscoverySink : IMessageSink, IDisposable
+    {
+        private readonly List<ITestCase> _cases;
+        public ManualResetEvent Finished { get; } = new(false);
+
+        public DiscoverySink(List<ITestCase> cases) => _cases = cases;
+        public bool OnMessage(IMessageSinkMessage message)
+        {
+            if (message is ITestCaseDiscoveryMessage discovered)
+                _cases.Add(discovered.TestCase);
+            else if (message is IDiscoveryCompleteMessage)
+                Finished.Set();
+            return true;
+        }
+
+        public void Dispose() => Finished.Dispose();
+    }
+
+    private sealed class ExecutionSink : IMessageSink, IDisposable
+    {
+        private readonly Action<MauiTestItem> _record;
+        public ManualResetEvent Finished { get; } = new(false);
+
+        public ExecutionSink(Action<MauiTestItem> record) => _record = record;
+
+        public bool OnMessage(IMessageSinkMessage message)
+        {
+            switch (message)
+            {
+                case ITestPassed passed:
+                    _record(new MauiTestItem(passed.Test.DisplayName, "Passed", null));
+                    break;
+                case ITestFailed failed:
+                    _record(new MauiTestItem(failed.Test.DisplayName, "Failed",
+                        string.Join(" | ", failed.Messages)));
+                    break;
+                case ITestSkipped skipped:
+                    _record(new MauiTestItem(skipped.Test.DisplayName, "Skipped", skipped.Reason));
+                    break;
+                case ITestAssemblyFinished:
+                    Finished.Set();
+                    break;
+            }
+            return true;
+        }
+
+        public void Dispose() => Finished.Dispose();
+    }
+
+    private sealed class NullSink : IMessageSink
+    {
+        public bool OnMessage(IMessageSinkMessage message) => true;
     }
 }

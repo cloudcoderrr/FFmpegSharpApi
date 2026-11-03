@@ -73,6 +73,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\FFmpegSharpApi.Tests.Core\FFmpegSharpApi.Tests.Core.csproj" />
 		<PackageReference Include="xunit.runner.utility" Version="2.9.3" />
+		<PackageReference Include="xunit.extensibility.execution" Version="2.9.3" />
 	</ItemGroup>
 
 	<!-- Bundle the fixture pack (zipped) so it can be unpacked on device at first run. -->
@@ -83,18 +84,6 @@
 	<ItemGroup>
 		<MauiAsset Include="$(IntermediateOutputPath)testdata.zip" LogicalName="testdata.zip" />
 	</ItemGroup>
-
-	<!-- Bundle the shared test assembly as a readable asset. xunit's controller needs a
-	     physical file for discovery, which embedded mobile assemblies do not provide.
-	     ResolveReferences builds the Tests.Core project reference first and exposes its
-	     output path via ReferenceCopyLocalPaths. -->
-	<Target Name="BundleCoreAssembly" BeforeTargets="CollectMauiAssets" DependsOnTargets="ResolveReferences">
-		<ItemGroup>
-			<MauiAsset Include="@(ReferenceCopyLocalPaths)"
-			           Condition="'%(FileName)%(Extension)' == 'FFmpegSharpApi.Tests.Core.dll'"
-			           LogicalName="FFmpegSharpApi.Tests.Core.dll" />
-		</ItemGroup>
-	</Target>
 
 	<!-- Native FFmpeg libraries supplied by CI via FFmpegNativeDir / FFmpegXcframework. -->
 	<ItemGroup Condition="'$(FFmpegNativeDir)' != '' And $(TargetFramework.Contains('-android'))">
