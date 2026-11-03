@@ -76,13 +76,18 @@
 		<PackageReference Include="xunit.extensibility.execution" Version="2.9.3" />
 	</ItemGroup>
 
-	<!-- Bundle the fixture pack (zipped) so it can be unpacked on device at first run. -->
+	<!-- Bundle the fixture pack (zipped) so it can be unpacked on device at first run. A
+	     fixed path (not $(IntermediateOutputPath)) keeps it stable across the outer/inner
+	     builds that iOS performs when a RuntimeIdentifier is set. -->
+	<PropertyGroup>
+		<FFmpegTestDataZip>$(MSBuildProjectDirectory)/obj/ffmpeg-testdata.zip</FFmpegTestDataZip>
+	</PropertyGroup>
 	<Target Name="BundleTestData" BeforeTargets="BeforeBuild;CollectMauiAssets">
-		<MakeDir Directories="$(IntermediateOutputPath)" />
-		<ZipDirectory SourceDirectory="$(MSBuildThisFileDirectory)..\Data" DestinationFile="$(IntermediateOutputPath)testdata.zip" Overwrite="true" />
+		<MakeDir Directories="$(MSBuildProjectDirectory)/obj" />
+		<ZipDirectory SourceDirectory="$(MSBuildThisFileDirectory)..\Data" DestinationFile="$(FFmpegTestDataZip)" Overwrite="true" />
 	</Target>
 	<ItemGroup>
-		<MauiAsset Include="$(IntermediateOutputPath)testdata.zip" LogicalName="testdata.zip" />
+		<MauiAsset Include="$(FFmpegTestDataZip)" LogicalName="testdata.zip" />
 	</ItemGroup>
 
 	<!-- Native FFmpeg libraries supplied by CI via FFmpegNativeDir / FFmpegXcframework. -->
