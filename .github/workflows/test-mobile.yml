@@ -100,7 +100,9 @@ jobs:
           xcodebuild -version
 
       - name: Install MAUI workloads
-        run: dotnet workload install maui
+        # Use the SDK's baseline manifests (which match the installed Xcode) rather than
+        # updating to the latest .NET for iOS, which can require an unreleased Xcode.
+        run: dotnet workload install maui --skip-manifest-update
 
       - name: Fetch the Apple xcframework from the release
         env:
