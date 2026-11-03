@@ -22,8 +22,8 @@ public static class FFmpegRuntime
     public static string? NativeLibrariesPath { get; private set; }
 
     /// <summary>
-    /// Initializes the FFmpeg bindings. Safe to call multiple times; only the first call
-    /// takes effect.
+    /// Initializes the FFmpeg bindings. Safe to call multiple times; the native bindings are
+    /// bound once, while logging options are applied on every call that requests them.
     /// </summary>
     /// <param name="options">Optional configuration; defaults are used when omitted.</param>
     public static void Initialize(FFmpegRuntimeOptions? options = null)
@@ -32,27 +32,29 @@ public static class FFmpegRuntime
 
         lock (Gate)
         {
-            if (_initialized)
-                return;
-
+            if (!_initialized)
+            {
 #if IOS || MACCATALYST
-            FFmpeg.AutoGen.Bindings.StaticallyLinked.StaticallyLinkedBindings.Initialize();
+                FFmpeg.AutoGen.Bindings.StaticallyLinked.StaticallyLinkedBindings.Initialize();
 #else
-            var path = string.IsNullOrEmpty(options.NativeLibrariesPath)
-                ? NativeLibraryLocator.Resolve()
-                : options.NativeLibrariesPath!;
-            NativeLibrariesPath = path;
+                var path = string.IsNullOrEmpty(options.NativeLibrariesPath)
+                    ? NativeLibraryLocator.Resolve()
+                    : options.NativeLibrariesPath!;
+                NativeLibrariesPath = path;
 
-            FFmpeg.AutoGen.Bindings.DynamicallyLoaded.DynamicallyLoadedBindings.LibrariesPath = path;
-            FFmpeg.AutoGen.Bindings.DynamicallyLoaded.DynamicallyLoadedBindings.FunctionResolver =
-                new FFmpegFunctionResolver();
-            FFmpeg.AutoGen.Bindings.DynamicallyLoaded.DynamicallyLoadedBindings.Initialize();
+                FFmpeg.AutoGen.Bindings.DynamicallyLoaded.DynamicallyLoadedBindings.LibrariesPath = path;
+                FFmpeg.AutoGen.Bindings.DynamicallyLoaded.DynamicallyLoadedBindings.FunctionResolver =
+                    new FFmpegFunctionResolver();
+                FFmpeg.AutoGen.Bindings.DynamicallyLoaded.DynamicallyLoadedBindings.Initialize();
 #endif
 
-            _initialized = true;
-        }
+                _initialized = true;
+            }
 
-        if (options.EnableLogging)
-            FFmpegLog.Enable(options.LogLevel, options.LogFilePath, options.LogToConsole);
+            // Logging can be turned on by any caller, even after the one-time bind above
+            // (for example when a host pre-initializes with logging disabled).
+            if (options.EnableLogging)
+                FFmpegLog.Enable(options.LogLevel, options.LogFilePath, options.LogToConsole);
+        }
     }
 }
