@@ -22,8 +22,9 @@ log() { printf '\033[1;36m[xcframework]\033[0m %s\n' "$*" >&2; }
 # combine_slice <rid> <output.a> : merge all static libs (FFmpeg + its static
 # dependencies such as dav1d and libxml2) for one rid into a self-contained archive.
 # FFmpeg compiles some shared internal objects (e.g. framepool.o) into several
-# libraries; those byte-identical copies are de-duplicated so ForceLoad does not see
-# duplicate symbols, while genuinely distinct objects (each lib's own utils.o) are kept.
+# libraries; a member that appears in more than one archive is kept only in the first
+# so ForceLoad does not see duplicate symbols. Objects that merely share a basename
+# within a single archive (dav1d's per-bit-depth templates) are left untouched.
 combine_slice() {
   local rid="$1" out="$2"
   local libdir="$NATIVE_DIR/$rid/lib"
@@ -32,26 +33,37 @@ combine_slice() {
   shopt -u nullglob
   [ ${#archives[@]} -gt 0 ] || { log "no static libs for $rid"; return 1; }
 
-  local tmp objdir a d o h b i=0
-  tmp="$(mktemp -d)"; objdir="$tmp/objs"; mkdir -p "$objdir"
-  local seenfile="$tmp/seen"; : > "$seenfile"
-  local keep=()
+  local tmp; tmp="$(mktemp -d)"
+  local work=() a b base i=0
   for a in "${archives[@]}"; do
-    d="$tmp/x$i"; mkdir -p "$d"; ( cd "$d" && ar x "$a" )
+    b="$tmp/$(printf '%02d' "$i")_$(basename "$a")"
+    cp "$a" "$b"; work+=("$b"); i=$((i + 1))
+  done
+
+  local seen="$tmp/seen"; : > "$seen"
+  i=0
+  for a in "${work[@]}"; do
+    local d="$tmp/x$i"; mkdir -p "$d"; ( cd "$d" && ar x "$a" )
     shopt -s nullglob
+    local o name hash
     for o in "$d"/*.o; do
-      h="$(shasum "$o" | cut -d' ' -f1)"
-      if grep -qxF "$h" "$seenfile"; then continue; fi
-      echo "$h" >> "$seenfile"
-      b="lib${i}_$(basename "$o")"
-      cp "$o" "$objdir/$b"
-      keep+=("$objdir/$b")
+      name="$(basename "$o")"
+      hash="$(shasum "$o" | cut -d' ' -f1)"
+      # Drop a member only when a byte-identical member of the same name was already
+      # kept in an earlier archive (FFmpeg's shared internals). Same-name but different
+      # content (e.g. dav1d vs swscale ops.o) are left in place.
+      if grep -qxF "$name|$hash" "$seen"; then
+        ar d "$a" "$name" 2>/dev/null || true
+      else
+        echo "$name|$hash" >> "$seen"
+      fi
     done
     shopt -u nullglob
     i=$((i + 1))
   done
-  log "merging $rid (${#archives[@]} archives, ${#keep[@]} unique objects) -> $(basename "$out")"
-  libtool -static -o "$out" "${keep[@]}"
+
+  log "merging $rid (${#work[@]} archives) -> $(basename "$out")"
+  libtool -static -o "$out" "${work[@]}"
   rm -rf "$tmp"
 }
 
