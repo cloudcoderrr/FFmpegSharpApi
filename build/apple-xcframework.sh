@@ -21,17 +21,37 @@ log() { printf '\033[1;36m[xcframework]\033[0m %s\n' "$*" >&2; }
 
 # combine_slice <rid> <output.a> : merge all static libs (FFmpeg + its static
 # dependencies such as dav1d and libxml2) for one rid into a self-contained archive.
+# FFmpeg compiles some shared internal objects (e.g. framepool.o) into several
+# libraries; those byte-identical copies are de-duplicated so ForceLoad does not see
+# duplicate symbols, while genuinely distinct objects (each lib's own utils.o) are kept.
 combine_slice() {
-  local rid="$1" out="$2" l
-  local libs=()
+  local rid="$1" out="$2" libdir="$NATIVE_DIR/$rid/lib"
   shopt -s nullglob
-  for l in "$NATIVE_DIR/$rid/lib/"*.a; do
-    libs+=("$l")
-  done
+  local archives=("$libdir"/*.a)
   shopt -u nullglob
-  [ ${#libs[@]} -gt 0 ] || { log "no static libs for $rid"; return 1; }
-  log "merging $rid (${libs[*]##*/}) -> $(basename "$out")"
-  libtool -static -o "$out" "${libs[@]}"
+  [ ${#archives[@]} -gt 0 ] || { log "no static libs for $rid"; return 1; }
+
+  local tmp objdir a d o h b i=0
+  tmp="$(mktemp -d)"; objdir="$tmp/objs"; mkdir -p "$objdir"
+  declare -A seen=()
+  local keep=()
+  for a in "${archives[@]}"; do
+    d="$tmp/x$i"; mkdir -p "$d"; ( cd "$d" && ar x "$a" )
+    shopt -s nullglob
+    for o in "$d"/*.o; do
+      h="$(shasum "$o" | cut -d' ' -f1)"
+      [ -n "${seen[$h]:-}" ] && continue
+      seen[$h]=1
+      b="lib${i}_$(basename "$o")"
+      cp "$o" "$objdir/$b"
+      keep+=("$objdir/$b")
+    done
+    shopt -u nullglob
+    i=$((i + 1))
+  done
+  log "merging $rid (${#archives[@]} archives, ${#keep[@]} unique objects) -> $(basename "$out")"
+  libtool -static -o "$out" "${keep[@]}"
+  rm -rf "$tmp"
 }
 
 args=()
