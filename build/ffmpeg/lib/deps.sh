@@ -133,12 +133,12 @@ _dep_x265() {
   run cmake --install "$WORK/x265/_build"
   # x265 is C++, so FFmpeg's static pkg-config link test must pull the C++
   # runtime. Clang does not auto-link libc++ for a C test program (notably on
-  # cross targets), so advertise it in the .pc's Libs.private. Use libc++ on
-  # Apple/Clang, libstdc++ elsewhere.
+  # cross targets), so advertise it in the .pc's Libs.private. Clang targets
+  # (Apple, macOS, Android NDK) use libc++; GCC targets use libstdc++.
   local pc="$PREFIX/lib/pkgconfig/x265.pc"
   if [ -f "$pc" ]; then
     local cxxlib="-lstdc++"
-    { [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ]; } && cxxlib="-lc++"
+    { [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ] || [ "$FAMILY" = android ]; } && cxxlib="-lc++"
     if grep -q '^Libs.private:' "$pc"; then
       grep -q -- "$cxxlib" "$pc" || sed -i.bak -E "s|^(Libs\.private:.*)|\\1 $cxxlib|" "$pc"
     else

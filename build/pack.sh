@@ -52,6 +52,54 @@ pack_native_family() {
     -p:NativeRoot="$stage/$family"
 }
 
+# has_slice <license> <glob> : true if any matching rid with a lib/ dir exists.
+has_slice() {
+  local license="$1" pat="$2" p
+  shopt -s nullglob
+  for p in "$NATIVE_DIR/$license"/$pat; do
+    [ -d "$p/lib" ] && { shopt -u nullglob; return 0; }
+  done
+  shopt -u nullglob
+  return 1
+}
+
+# pack_apple <license> : build FFmpeg.xcframework from the apple slices and pack it.
+pack_apple() {
+  local license="$1"
+  { has_slice "$license" 'ios-*' || has_slice "$license" 'iossimulator-*' || has_slice "$license" 'maccatalyst-*'; } || return 0
+  local suffix="" lic="LGPL-3.0-or-later"
+  [ "$license" = gpl ] && { suffix=".GPL"; lic="GPL-3.0-or-later"; }
+  log "building FFmpeg.xcframework ($license)"
+  NATIVE_DIR="$NATIVE_DIR" OUT_DIR="$REPO/build-work/apple" bash "$HERE/apple-xcframework.sh" "$license"
+  local xcf="$REPO/build-work/apple/$license/FFmpeg.xcframework"
+  [ -d "$xcf" ] || { log "xcframework not produced for $license"; return 1; }
+  log "packing FFmpegSharpApi.Native.Apple$suffix ($license)"
+  dotnet pack "$REPO/packaging/FFmpegSharpApi.Native.Apple/FFmpegSharpApi.Native.Apple.csproj" \
+    -c Release -o "$OUT" \
+    -p:PackageId="FFmpegSharpApi.Native.Apple$suffix" \
+    -p:PackageVersion="$VERSION" \
+    -p:PackageLicenseExpression="$lic" \
+    -p:"Description=Native FFmpeg 9.0 for iOS and Mac Catalyst (static xcframework)." \
+    -p:XcframeworkDir="$xcf"
+}
+
+# pack_meta <license> <full> : the convenience meta-package. full=true emits per-TFM
+# dependency groups covering desktop, Android, iOS and Mac Catalyst.
+pack_meta() {
+  local license="$1" full="$2"
+  local suffix="" lic="LGPL-3.0-or-later" id="FFmpegSharpApi.Native"
+  [ "$license" = gpl ] && { suffix=".GPL"; lic="GPL-3.0-or-later"; id="FFmpegSharpApi.Native.GPL"; }
+  log "packing meta $id ($license, full=$full)"
+  dotnet pack "$REPO/packaging/FFmpegSharpApi.Native/FFmpegSharpApi.Native.csproj" \
+    -c Release -o "$OUT" \
+    -p:PackageId="$id" \
+    -p:PackageVersion="$VERSION" \
+    -p:DependencyVersion="$VERSION" \
+    -p:PackageLicenseExpression="$lic" \
+    -p:NativeFlavorSuffix="$suffix" \
+    -p:MetaFull="$full"
+}
+
 pack_native() {
   local license="$1"
   [ -d "$NATIVE_DIR/$license" ] || { log "no native artifacts for $license, skipping"; return 0; }
@@ -75,18 +123,15 @@ pack_native() {
     [ -d "$stage/$family" ] && pack_native_family "$license" "$family" "$stage"
   done
 
-  if [ "$any" = 1 ]; then
-    local suffix="" lic="LGPL-3.0-or-later" id="FFmpegSharpApi.Native"
-    [ "$license" = gpl ] && { suffix=".GPL"; lic="GPL-3.0-or-later"; id="FFmpegSharpApi.Native.GPL"; }
-    log "packing meta $id ($license)"
-    dotnet pack "$REPO/packaging/FFmpegSharpApi.Native/FFmpegSharpApi.Native.csproj" \
-      -c Release -o "$OUT" \
-      -p:PackageId="$id" \
-      -p:PackageVersion="$VERSION" \
-      -p:DependencyVersion="$VERSION" \
-      -p:PackageLicenseExpression="$lic" \
-      -p:NativeFlavorSuffix="$suffix"
+  pack_apple "$license"
+
+  # A multi-targeted meta needs the Android + Apple packages that were just produced.
+  local full=false
+  if { has_slice "$license" 'ios-*' || has_slice "$license" 'maccatalyst-*'; } && has_slice "$license" 'android-*'; then
+    full=true
   fi
+  [ "$any" = 1 ] || { has_slice "$license" 'ios-*' && any=1; }
+  [ "$any" = 1 ] && pack_meta "$license" "$full"
 }
 
 pack_managed

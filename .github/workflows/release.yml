@@ -1,5 +1,10 @@
 name: release
 
+# Builds every native slice (both licence flavours, all platforms), assembles the
+# iOS/Mac Catalyst xcframework, packs the managed, native, Apple and meta packages
+# (managed and meta are multi-targeted so one reference works everywhere), and
+# publishes them to the GitHub release.
+
 on:
   workflow_dispatch:
     inputs:
@@ -10,8 +15,8 @@ on:
       licenses:
         description: "License flavours to build and pack"
         type: choice
-        options: [lgpl, both]
-        default: lgpl
+        options: [both, lgpl, gpl]
+        default: both
       prerelease:
         description: "Mark the GitHub release as a pre-release"
         type: boolean
@@ -30,27 +35,27 @@ jobs:
   native-linux:
     uses: ./.github/workflows/native-linux.yml
     with:
-      license: ${{ inputs.licenses || 'lgpl' }}
+      license: ${{ inputs.licenses || 'both' }}
 
   native-windows:
     uses: ./.github/workflows/native-windows.yml
     with:
-      license: ${{ inputs.licenses || 'lgpl' }}
+      license: ${{ inputs.licenses || 'both' }}
 
   native-apple:
     uses: ./.github/workflows/native-apple.yml
     with:
-      license: ${{ inputs.licenses || 'lgpl' }}
-      rids: "osx-arm64 osx-x64"
+      license: ${{ inputs.licenses || 'both' }}
+      rids: ""   # all apple slices: macOS + iOS + simulators + Mac Catalyst
 
   native-android:
     uses: ./.github/workflows/native-android.yml
     with:
-      license: ${{ inputs.licenses || 'lgpl' }}
+      license: ${{ inputs.licenses || 'both' }}
 
   pack:
     needs: [native-linux, native-windows, native-apple, native-android]
-    runs-on: ubuntu-latest
+    runs-on: macos-latest   # macOS so the xcframework and ios/maccatalyst TFMs can be built
     outputs:
       version: ${{ steps.meta.outputs.version }}
       tag: ${{ steps.meta.outputs.tag }}
@@ -74,6 +79,18 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "Version=$VER Tag=$TAG"
 
+      - name: Select Xcode matching the baseline .NET for iOS
+        run: |
+          pick="$(ls -d /Applications/Xcode_26.0*.app 2>/dev/null | sort -V | tail -1)"
+          [ -z "$pick" ] && pick="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          [ -n "$pick" ] && sudo xcode-select -s "$pick/Contents/Developer"
+          xcodebuild -version
+
+      - name: Install workloads (baseline manifest, matched to Xcode)
+        run: |
+          dotnet workload install maui --skip-manifest-update
+          dotnet workload install android --skip-manifest-update
+
       - name: Download native artifacts
         uses: actions/download-artifact@v4
         with:
@@ -92,9 +109,8 @@ jobs:
           PACKAGE_VERSION: ${{ steps.meta.outputs.version }}
           NATIVE_DIR: ${{ github.workspace }}/artifacts/native
           OUT_DIR: ${{ github.workspace }}/artifacts/packages
-          MANAGED_TFMS: net10.0
         run: |
-          chmod +x build/pack.sh
+          chmod +x build/pack.sh build/apple-xcframework.sh
           build/pack.sh
 
       - uses: actions/upload-artifact@v4
@@ -122,13 +138,14 @@ jobs:
           set -euo pipefail
           FLAGS=()
           [ "${PRERELEASE:-true}" = "true" ] && FLAGS+=(--prerelease)
+          NOTES="FFmpeg 9.0.1 for .NET: managed bindings plus native binaries for Windows, Linux, macOS, Android, iOS and Mac Catalyst. LGPL v3 on every platform; GPL v3 where available. See the README for usage."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/*.nupkg --repo "$GITHUB_REPOSITORY" --clobber
           else
             gh release create "$TAG" dist/*.nupkg \
               --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
               --title "FFmpegSharpApi $VER" \
-              --notes "FFmpeg 9.0.1 NuGet packages for .NET. Managed bindings plus native binaries (LGPL v3). See README for usage." \
+              --notes "$NOTES" \
               "${FLAGS[@]}"
           fi
           echo "Release assets:"; gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'
