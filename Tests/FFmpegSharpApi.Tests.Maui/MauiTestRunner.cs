@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
@@ -105,7 +106,7 @@ public static class MauiTestRunner
             summary.Failed == 0 ? "PASS" : "FAIL");
     }
 
-    private sealed class DiscoverySink : IMessageSink, IDisposable
+    private sealed class DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IDisposable
     {
         private readonly List<ITestCase> _cases;
         public ManualResetEvent Finished { get; } = new(false);
@@ -123,7 +124,7 @@ public static class MauiTestRunner
         public void Dispose() => Finished.Dispose();
     }
 
-    private sealed class ExecutionSink : IMessageSink, IDisposable
+    private sealed class ExecutionSink : LongLivedMarshalByRefObject, IMessageSink, IDisposable
     {
         private readonly Action<MauiTestItem> _record;
         public ManualResetEvent Finished { get; } = new(false);
@@ -154,7 +155,7 @@ public static class MauiTestRunner
         public void Dispose() => Finished.Dispose();
     }
 
-    private sealed class NullSink : IMessageSink
+    private sealed class NullSink : LongLivedMarshalByRefObject, IMessageSink
     {
         public bool OnMessage(IMessageSinkMessage message) => true;
     }
