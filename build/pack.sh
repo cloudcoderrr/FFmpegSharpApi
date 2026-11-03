@@ -35,7 +35,7 @@ pack_managed() {
   [ -n "${MANAGED_TFMS:-}" ] && tfm_arg=(-p:TargetFrameworks="$MANAGED_TFMS")
   log "packing managed FFmpegSharpApi $VERSION"
   dotnet pack "$REPO/src/FFmpegSharpApi/FFmpegSharpApi.csproj" -c Release -o "$OUT" \
-    -p:PackageVersion="$VERSION" "${tfm_arg[@]}"
+    -p:PackageVersion="$VERSION" ${tfm_arg[@]+"${tfm_arg[@]}"}
 }
 
 pack_native_family() {

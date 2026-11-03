@@ -1,0 +1,125 @@
+name: pack-release
+
+# Packs and publishes the NuGet packages by reusing native binaries that a
+# previous native build run already produced, instead of rebuilding them.
+# Use this to iterate on packaging or to refresh a release without paying the
+# cost of a full from-source native rebuild. For a clean end-to-end build from
+# a tag, use release.yml instead.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "NuGet package version (without leading v)"
+        type: string
+        default: "9.0.1-preview.1"
+      source_run_id:
+        description: "Run ID to download the ffmpeg-* native artifacts from"
+        type: string
+        required: true
+      prerelease:
+        description: "Mark the GitHub release as a pre-release"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pack-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pack:
+    runs-on: macos-latest   # macOS so the xcframework and ios/maccatalyst TFMs can be built
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve version
+        id: meta
+        shell: bash
+        run: |
+          VER="${{ inputs.version }}"; TAG="v$VER"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Version=$VER Tag=$TAG"
+
+      - name: Select Xcode matching the baseline .NET for iOS
+        run: |
+          pick="$(ls -d /Applications/Xcode_26.0*.app 2>/dev/null | sort -V | tail -1)"
+          [ -z "$pick" ] && pick="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          [ -n "$pick" ] && sudo xcode-select -s "$pick/Contents/Developer"
+          xcodebuild -version
+
+      - name: Install workloads (baseline manifest, matched to Xcode)
+        run: |
+          dotnet workload install maui --skip-manifest-update
+          dotnet workload install android --skip-manifest-update
+
+      - name: Download native artifacts from the source run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p native-artifacts
+          gh run download "${{ inputs.source_run_id }}" \
+            --repo "$GITHUB_REPOSITORY" -p 'ffmpeg-*' -D native-artifacts
+          echo "Downloaded artifacts:"; ls -1 native-artifacts
+
+      - name: Arrange native binaries
+        run: |
+          mkdir -p artifacts/native
+          find native-artifacts -name '*.tar.gz' -exec tar -C artifacts/native -xzf {} \;
+          echo "Staged native trees:"; find artifacts/native -maxdepth 2 -type d | sort
+
+      - name: Pack NuGet packages
+        env:
+          PACKAGE_VERSION: ${{ steps.meta.outputs.version }}
+          NATIVE_DIR: ${{ github.workspace }}/artifacts/native
+          OUT_DIR: ${{ github.workspace }}/artifacts/packages
+        run: |
+          chmod +x build/pack.sh build/apple-xcframework.sh
+          build/pack.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+
+  release:
+    needs: pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nupkgs
+          path: dist
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.pack.outputs.tag }}
+          VER: ${{ needs.pack.outputs.version }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          FLAGS=()
+          [ "${PRERELEASE:-true}" = "true" ] && FLAGS+=(--prerelease)
+          NOTES="FFmpeg 9.0.1 for .NET: managed bindings plus native binaries for Windows, Linux, macOS, Android, iOS and Mac Catalyst. Both LGPL v3 and GPL v3 flavours are provided for every platform. See the README for usage."
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.nupkg --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" dist/*.nupkg \
+              --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "FFmpegSharpApi $VER" \
+              --notes "$NOTES" \
+              "${FLAGS[@]}"
+          fi
+          echo "Release assets:"; gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'
