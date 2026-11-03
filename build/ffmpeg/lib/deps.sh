@@ -98,14 +98,23 @@ _dep_libxml2() {
 _dep_x264() {
   clone_component x264 "$X264_REPO" "$X264_REF" "$WORK/x264"
   apply_patches x264 "$WORK/x264" "$REPO_ROOT/patches"
-  local hostflag=() crossflag=()
+  local hostflag=() crossflag=() asflag=()
   [ -n "$HOST_TRIPLE" ] && [ "$FF_CROSS_COMPILE" = 1 ] && hostflag=(--host="$HOST_TRIPLE")
   [ -n "$FF_CROSS_PREFIX" ] && crossflag=(--cross-prefix="$FF_CROSS_PREFIX")
+  # On Apple arm64/arm the assembler is clang (not nasm). x264 compiles its .S
+  # files with a bare "clang -arch arm64" that omits our -target/-isysroot, so
+  # the resulting asm objects are tagged for the host (macOS) and FFmpeg's
+  # link test rejects them ("building for iOS, but linking object built for
+  # macOS"). Propagate the full platform flags to the assembler. x86_64 Apple
+  # uses nasm, which must NOT receive these clang-only flags.
+  if [ "${APPLE:-0}" = 1 ] && { [ "$ARCH" = arm64 ] || [ "$ARCH" = arm ]; }; then
+    asflag=(--extra-asflags="$TOOL_CFLAGS")
+  fi
   ( cd "$WORK/x264"
     CC="$CC" CXX="$CXX" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
     CFLAGS="$TOOL_CFLAGS" LDFLAGS="$TOOL_LDFLAGS" \
     ./configure --prefix="$PREFIX" --enable-static --enable-pic \
-      --disable-cli --disable-opencl ${hostflag[@]+"${hostflag[@]}"} ${crossflag[@]+"${crossflag[@]}"}
+      --disable-cli --disable-opencl ${hostflag[@]+"${hostflag[@]}"} ${crossflag[@]+"${crossflag[@]}"} ${asflag[@]+"${asflag[@]}"}
     make -j"$(ncpu)"
     make install )
 }
@@ -137,17 +146,32 @@ _dep_x265() {
   # (Apple, macOS, Android NDK) use libc++; GCC targets use libstdc++.
   local pc="$PREFIX/lib/pkgconfig/x265.pc"
   if [ -f "$pc" ]; then
-    local cxxlib="-lstdc++"
     if [ "$FAMILY" = android ]; then
-      cxxlib="-lc++_shared"
-    elif [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ]; then
-      cxxlib="-lc++"
-    fi
-    if grep -q '^Libs.private:' "$pc"; then
-      grep -q -- "$cxxlib" "$pc" || sed -i.bak -E "s|^(Libs\.private:.*)|\\1 $cxxlib|" "$pc"
+      # x265's CMake emits a broken Libs.private on the Android NDK: a bare
+      # "-lc++" (the NDK ships libc++_shared/libc++_static, there is no plain
+      # libc++) plus a malformed "-l-l:libunwind.a" token that ld.lld cannot
+      # resolve. Replace the whole line with the correct NDK C++ runtime
+      # (libc++_shared also provides the unwinder) and defensively strip any
+      # stray "-l-l:" tokens elsewhere in the file.
+      if grep -q '^Libs.private:' "$pc"; then
+        sed -i.bak -E \
+          -e 's|^Libs\.private:.*|Libs.private: -lc++_shared -lm -ldl|' \
+          -e 's/-l-l:[^ ]*//g' \
+          "$pc"
+      else
+        sed -i.bak -E 's/-l-l:[^ ]*//g' "$pc"
+        printf 'Libs.private: -lc++_shared -lm -ldl\n' >> "$pc"
+      fi
+      rm -f "$pc.bak"
     else
-      printf 'Libs.private: %s\n' "$cxxlib" >> "$pc"
+      local cxxlib="-lstdc++"
+      { [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ]; } && cxxlib="-lc++"
+      if grep -q '^Libs.private:' "$pc"; then
+        grep -q -- "$cxxlib" "$pc" || sed -i.bak -E "s|^(Libs\.private:.*)|\\1 $cxxlib|" "$pc"
+      else
+        printf 'Libs.private: %s\n' "$cxxlib" >> "$pc"
+      fi
+      rm -f "$pc.bak"
     fi
-    rm -f "$pc.bak"
   fi
 }
