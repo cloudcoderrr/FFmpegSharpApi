@@ -54,11 +54,10 @@ public static unsafe class FFmpegLog
             }
 
             _toConsole = toConsole;
-            // MonoVM (Android/iOS/Mac Catalyst) cannot invoke a plain managed delegate from
-            // native code, so install a natively-callable function pointer there. Desktop
-            // CoreCLR uses the ordinary managed delegate.
-            if ((OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsMacCatalyst())
-                && TryRegisterNativeCallback())
+            // Android's MonoVM cannot invoke a plain managed delegate from native code, so
+            // install a natively-callable function pointer there. iOS and Mac Catalyst use
+            // full AOT, where the ordinary managed delegate callback works.
+            if (OperatingSystem.IsAndroid() && TryRegisterNativeCallback())
             {
                 _callback = null;
             }
@@ -94,14 +93,13 @@ public static unsafe class FFmpegLog
     }
 
     // Resolves the raw av_log_set_callback export and installs the native function pointer
-    // directly, bypassing the managed delegate marshalling that MonoVM cannot call back into.
+    // directly, bypassing the managed delegate marshalling that Android's MonoVM cannot call
+    // back into. Used on Android only (iOS/Mac Catalyst use the managed delegate).
     private static bool TryRegisterNativeCallback()
     {
         try
         {
-            nint handle = OperatingSystem.IsAndroid()
-                ? NativeLibrary.Load("libavutil.so")
-                : NativeLibrary.Load("__Internal");
+            nint handle = NativeLibrary.Load("libavutil.so");
             if (!NativeLibrary.TryGetExport(handle, "av_log_set_callback", out nint setCallback))
             {
                 NativeRegistrationStatus = "export av_log_set_callback not found";
