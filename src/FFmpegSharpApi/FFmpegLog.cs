@@ -25,6 +25,9 @@ public static unsafe class FFmpegLog
     /// <summary>The level currently applied to the native logger.</summary>
     public static FFmpegLogLevel Level { get; private set; } = FFmpegLogLevel.Info;
 
+    /// <summary>Number of times the native callback has been invoked (diagnostic).</summary>
+    public static long CallbackCount { get; private set; }
+
     /// <summary>
     /// Installs the managed log callback and sets the FFmpeg log level.
     /// </summary>
@@ -67,16 +70,29 @@ public static unsafe class FFmpegLog
 
     private static void Callback(void* avcl, int level, string format, byte* vl)
     {
+        CallbackCount++;
         if (level > ffmpeg.av_log_get_level())
             return;
 
-        const int bufferSize = 4096;
-        var buffer = stackalloc byte[bufferSize];
-        var printPrefix = 1;
-        ffmpeg.av_log_format_line2(avcl, level, format, vl, buffer, bufferSize, &printPrefix);
+        string message;
+        try
+        {
+            const int bufferSize = 4096;
+            var buffer = stackalloc byte[bufferSize];
+            var printPrefix = 1;
+            ffmpeg.av_log_format_line2(avcl, level, format, vl, buffer, bufferSize, &printPrefix);
+            message = (Marshal.PtrToStringAnsi((IntPtr)buffer) ?? string.Empty).TrimEnd('\r', '\n');
+        }
+        catch
+        {
+            // va_list re-parsing can be unavailable on some mobile ABIs; fall back
+            // to the (already marshalled) format string so logging still works.
+            message = string.Empty;
+        }
 
-        var message = (Marshal.PtrToStringAnsi((IntPtr)buffer) ?? string.Empty)
-            .TrimEnd('\r', '\n');
+        if (message.Length == 0)
+            message = (format ?? string.Empty).TrimEnd('\r', '\n');
+
         var entry = new FFmpegLogEntry((FFmpegLogLevel)level, message);
 
         lock (Gate)
