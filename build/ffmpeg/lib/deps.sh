@@ -137,6 +137,9 @@ _dep_x265() {
   if [ "${APPLE:-0}" = 1 ] || [ "$FAMILY" = macos ]; then
     case "$ARCH" in x86_64|x64|i686|i386) extra+=(-DENABLE_ASSEMBLY=OFF) ;; esac
   fi
+  # x265's 32-bit x86 asm emits absolute (non-PIC) R_386_32 relocations that
+  # Android's linker rejects (shared libs require PIC). Disable asm for i686.
+  case "$ARCH" in x86|i686|i386) extra+=(-DENABLE_ASSEMBLY=OFF) ;; esac
   # shellcheck disable=SC2046
   run cmake -S "$WORK/x265/source" -B "$WORK/x265/_build" -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 $(_cmake_toolchain_arg) \
