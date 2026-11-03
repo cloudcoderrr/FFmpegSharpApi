@@ -92,8 +92,8 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Install MAUI iOS workload
-        run: dotnet workload install maui-ios
+      - name: Install MAUI workloads
+        run: dotnet workload install maui
 
       - name: Fetch the Apple xcframework from the release
         env:
