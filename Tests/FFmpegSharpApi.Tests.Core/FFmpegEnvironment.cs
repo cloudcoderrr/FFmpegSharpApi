@@ -20,6 +20,7 @@ public sealed class FFmpegEnvironment : IDisposable
         });
 
         var summary = Path.Combine(TestPaths.OutputDir, "ffmpeg-build.txt");
+        Directory.CreateDirectory(TestPaths.OutputDir);
         File.WriteAllText(summary,
             $"version={FFmpegInfo.VersionInfo}\n" +
             $"license={FFmpegInfo.License}\n" +

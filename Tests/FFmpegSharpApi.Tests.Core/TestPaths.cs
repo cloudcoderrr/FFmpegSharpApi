@@ -31,6 +31,7 @@ public static class TestPaths
     {
         _dataDir = dataDir;
         _outputDir = outputDir;
+        Directory.CreateDirectory(outputDir);
     }
 
     private static string ResolveDataDir()
