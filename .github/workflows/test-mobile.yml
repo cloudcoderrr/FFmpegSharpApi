@@ -96,13 +96,12 @@ jobs:
           echo "--- default Xcode ---"; xcodebuild -version
           echo "--- simulator runtimes ---"; xcrun simctl list runtimes ios || true
 
-      - name: Ensure MAUI iOS workload is present
+      - name: Ensure the android workload is present
         run: |
-          # Only install if missing, and without updating manifests so the version stays
-          # matched to the runner's default Xcode and simulator runtimes.
-          if ! dotnet workload list 2>/dev/null | grep -qiE '^(maui-ios|ios)\b'; then
-            dotnet workload install maui-ios --skip-manifest-update
-          fi
+          # The runner already ships the iOS workload matched to its default Xcode; the
+          # referenced projects also expose a net10.0-android TFM that is evaluated on macOS,
+          # so add android without updating manifests (keeps iOS matched to Xcode).
+          dotnet workload install android --skip-manifest-update
 
       - name: Fetch the Apple xcframework from the release
         env:
