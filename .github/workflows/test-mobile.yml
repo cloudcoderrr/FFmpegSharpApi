@@ -82,3 +82,41 @@ jobs:
           name: android-logcat
           path: logcat.txt
           if-no-files-found: ignore
+
+  ios:
+    if: ${{ inputs.platforms == 'both' || inputs.platforms == 'ios' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install MAUI iOS workload
+        run: dotnet workload install maui-ios
+
+      - name: Fetch the Apple xcframework from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download "v${{ inputs.version }}" --repo "$GITHUB_REPOSITORY" \
+            -D dl -p 'FFmpegSharpApi.Native.Apple.*.nupkg'
+          mkdir -p native/apple
+          unzip -o dl/FFmpegSharpApi.Native.Apple.*.nupkg -d native/apple >/dev/null
+          XCF="$(find "$PWD/native/apple" -name 'FFmpeg.xcframework' -type d | head -n1)"
+          echo "FFMPEG_XCFRAMEWORK=$XCF" >> "$GITHUB_ENV"
+          echo "xcframework: $XCF"
+
+      - name: Build iOS simulator app
+        run: |
+          set -euo pipefail
+          dotnet build Tests/FFmpegSharpApi.Tests.Maui/FFmpegSharpApi.Tests.Maui.csproj \
+            -c Debug -f net10.0-ios \
+            -p:RuntimeIdentifier=iossimulator-arm64 \
+            -p:FFmpegXcframework="$FFMPEG_XCFRAMEWORK"
+          find Tests/FFmpegSharpApi.Tests.Maui/bin -name '*.app' -type d -print
+
+      - name: Run tests on iOS simulator
+        run: bash "$GITHUB_WORKSPACE/build/ios-simulator-test.sh"
+
