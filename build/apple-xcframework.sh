@@ -25,7 +25,8 @@ log() { printf '\033[1;36m[xcframework]\033[0m %s\n' "$*" >&2; }
 # libraries; those byte-identical copies are de-duplicated so ForceLoad does not see
 # duplicate symbols, while genuinely distinct objects (each lib's own utils.o) are kept.
 combine_slice() {
-  local rid="$1" out="$2" libdir="$NATIVE_DIR/$rid/lib"
+  local rid="$1" out="$2"
+  local libdir="$NATIVE_DIR/$rid/lib"
   shopt -s nullglob
   local archives=("$libdir"/*.a)
   shopt -u nullglob
