@@ -31,11 +31,29 @@ public partial class MainPage : ContentPage
 
             SummaryLabel.Text = $"Total={summary.Total}  Passed={summary.Passed}  Failed={summary.Failed}  Skipped={summary.Skipped}";
             await MauiTestRunner.WriteResultsAsync(summary);
+            ReportToCi($"Total={summary.Total} Passed={summary.Passed} Failed={summary.Failed} Skipped={summary.Skipped}",
+                summary.Failed == 0 ? "PASS" : "FAIL");
         }
         catch (Exception ex)
         {
             SummaryLabel.Text = "Error: " + ex.Message;
+            ReportToCi("Unhandled error: " + ex, "FAIL");
         }
+    }
+
+    // Emits machine-readable markers to stdout (captured via logcat / simctl --console)
+    // then terminates the process so the CI harness run returns.
+    private static void ReportToCi(string summary, string verdict)
+    {
+        Console.WriteLine("##MOBILE_RESULT## " + summary);
+        Console.WriteLine("##MOBILE_DONE## " + verdict);
+        Console.Out.Flush();
+
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(2500);
+            Environment.Exit(verdict == "PASS" ? 0 : 1);
+        });
     }
 
     private static string DescribeBuild()

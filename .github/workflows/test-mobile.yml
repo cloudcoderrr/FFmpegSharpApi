@@ -1,0 +1,99 @@
+name: test-mobile
+
+# Runs the shared Tests.Core suite inside the MAUI host app on a real Android
+# emulator and iOS simulator. Native binaries are taken from the published
+# release packages (no native rebuild). The app prints machine-readable markers
+# (##MOBILE_DONE## PASS|FAIL) and self-exits so the harness can assert the result.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        default: "9.0.1-preview.1"
+      platforms:
+        type: choice
+        options: [both, android, ios]
+        default: both
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    if: ${{ inputs.platforms == 'both' || inputs.platforms == 'android' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Fetch Android native libraries from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download "v${{ inputs.version }}" --repo "$GITHUB_REPOSITORY" \
+            -D dl -p 'FFmpegSharpApi.Native.Android.*.nupkg'
+          mkdir -p native/android
+          unzip -o dl/FFmpegSharpApi.Native.Android.*.nupkg -d native/android >/dev/null
+          echo "Android native tree:"; find native/android/runtimes -name '*.so' | sort
+
+      - name: Build Android test APK
+        run: |
+          set -euo pipefail
+          dotnet build Tests/FFmpegSharpApi.Tests.Maui/FFmpegSharpApi.Tests.Maui.csproj \
+            -c Debug -f net10.0-android \
+            -p:FFmpegNativeDir="$PWD/native/android/runtimes" \
+            -p:AndroidEnableProfiledAot=false
+          find Tests/FFmpegSharpApi.Tests.Maui/bin -name '*-Signed.apk' -print
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run tests on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            set -eo pipefail
+            APK=$(find Tests/FFmpegSharpApi.Tests.Maui/bin -name '*-Signed.apk' | head -n1)
+            echo "Installing $APK"
+            adb install -r "$APK"
+            adb logcat -c
+            adb logcat > logcat.txt 2>&1 &
+            adb shell monkey -p com.companyname.ffmpegsharpapi.tests.maui -c android.intent.category.LAUNCHER 1
+            echo "Waiting for the test run to finish..."
+            for i in $(seq 1 180); do
+              if grep -q "##MOBILE_DONE##" logcat.txt; then break; fi
+              sleep 5
+            done
+            echo "---- markers ----"
+            grep "##MOBILE_" logcat.txt || true
+            echo "---- FFmpeg / errors ----"
+            grep -iE "FFmpeg |Unhandled|Exception|not loaded" logcat.txt | head -n 40 || true
+            grep -q "##MOBILE_DONE## PASS" logcat.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-logcat
+          path: logcat.txt
+          if-no-files-found: ignore
