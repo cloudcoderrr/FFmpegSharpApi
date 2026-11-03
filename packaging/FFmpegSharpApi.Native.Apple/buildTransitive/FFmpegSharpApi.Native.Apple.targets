@@ -9,6 +9,12 @@
       <Kind>Static</Kind>
       <ForceLoad>True</ForceLoad>
       <SmartLink>False</SmartLink>
+      <Frameworks>AudioToolbox VideoToolbox CoreMedia CoreVideo CoreImage CoreFoundation Security</Frameworks>
     </NativeReference>
   </ItemGroup>
+
+  <!-- FFmpeg's static libraries also pull in these system libraries (bzip2/zlib/iconv). -->
+  <PropertyGroup Condition="'$([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework)))' == 'ios' Or '$([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework)))' == 'maccatalyst'">
+    <MtouchExtraArgs>$(MtouchExtraArgs) -gcc_flags "-lbz2 -lz -liconv"</MtouchExtraArgs>
+  </PropertyGroup>
 </Project>

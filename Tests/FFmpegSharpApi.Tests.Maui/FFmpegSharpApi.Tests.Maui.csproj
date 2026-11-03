@@ -106,7 +106,13 @@
 		</AndroidNativeLibrary>
 	</ItemGroup>
 	<ItemGroup Condition="'$(FFmpegXcframework)' != '' And ($(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst')))">
-		<NativeReference Include="$(FFmpegXcframework)" Kind="Static" ForceLoad="True" SmartLink="False" />
+		<NativeReference Include="$(FFmpegXcframework)" Kind="Static" ForceLoad="True" SmartLink="False">
+			<Frameworks>AudioToolbox VideoToolbox CoreMedia CoreVideo CoreImage CoreFoundation Security</Frameworks>
+		</NativeReference>
 	</ItemGroup>
+	<!-- FFmpeg's static libraries pull in these system libraries (bzip2/zlib/iconv). -->
+	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
+		<MtouchExtraArgs>$(MtouchExtraArgs) -gcc_flags "-lbz2 -lz -liconv"</MtouchExtraArgs>
+	</PropertyGroup>
 
 </Project>
