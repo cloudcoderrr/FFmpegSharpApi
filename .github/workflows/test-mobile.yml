@@ -53,7 +53,9 @@ jobs:
           dotnet build Tests/FFmpegSharpApi.Tests.Maui/FFmpegSharpApi.Tests.Maui.csproj \
             -c Debug -f net10.0-android \
             -p:FFmpegNativeDir="$PWD/native/android/runtimes" \
-            -p:AndroidEnableProfiledAot=false
+            -p:EmbedAssembliesIntoApk=true \
+            -p:AndroidEnableProfiledAot=false \
+            -p:RunAOTCompilation=false
           find Tests/FFmpegSharpApi.Tests.Maui/bin -name '*-Signed.apk' -print
 
       - name: Enable KVM
