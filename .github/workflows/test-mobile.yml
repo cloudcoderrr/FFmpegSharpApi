@@ -89,19 +89,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Toolchain diagnostics (use the runner's self-consistent defaults)
+      - name: Toolchain diagnostics
         run: |
           which dotnet; dotnet --version
-          echo "--- installed workloads ---"; dotnet workload list || true
           echo "--- default Xcode ---"; xcodebuild -version
           echo "--- simulator runtimes ---"; xcrun simctl list runtimes ios || true
 
-      - name: Ensure the android workload is present
+      - name: Select Xcode 26.0.x (matches the SDK baseline .NET for iOS)
         run: |
-          # The runner already ships the iOS workload matched to its default Xcode; the
-          # referenced projects also expose a net10.0-android TFM that is evaluated on macOS,
-          # so add android without updating manifests (keeps iOS matched to Xcode).
-          dotnet workload install android --skip-manifest-update
+          pick="$(ls -d /Applications/Xcode_26.0*.app 2>/dev/null | sort -V | tail -1)"
+          [ -z "$pick" ] && pick="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          sudo xcode-select -s "$pick/Contents/Developer"
+          echo "Selected: $pick"; xcodebuild -version
+
+      - name: Install MAUI workloads (baseline manifest, matches the selected Xcode)
+        run: dotnet workload install maui --skip-manifest-update
+
+      - name: Download the matching iOS simulator runtime
+        run: |
+          # The baseline iphonesimulator SDK needs its own runtime, which the runner may not
+          # preinstall. Fetch it so actool and the simulator can use it.
+          xcodebuild -downloadPlatform iOS -quiet || true
+          echo "--- runtimes after download ---"; xcrun simctl list runtimes ios || true
 
       - name: Fetch the Apple xcframework from the release
         env:
