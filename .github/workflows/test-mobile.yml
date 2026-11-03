@@ -92,14 +92,16 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Select Xcode matching the baseline .NET for iOS (x.0)
+      - name: Select Xcode matching the baseline .NET for iOS (26.0.x)
         run: |
           echo "Installed Xcodes:"; ls -d /Applications/Xcode_*.app 2>/dev/null || true
-          # The SDK baseline .NET for iOS workload targets the x.0 Xcode release.
-          pick="$(ls -d /Applications/Xcode_26.0.app 2>/dev/null | head -1)"
+          # The SDK baseline .NET for iOS workload targets Xcode 26.0.x; pick the newest patch.
+          pick="$(ls -d /Applications/Xcode_26.0*.app 2>/dev/null | sort -V | tail -1)"
           [ -z "$pick" ] && pick="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
           if [ -n "$pick" ]; then sudo xcode-select -s "$pick/Contents/Developer"; fi
+          echo "Selected: $pick"
           xcodebuild -version
+          echo "SDKs:"; xcodebuild -showsdks 2>/dev/null | grep -iE "macos|iphonesimulator" || true
 
       - name: Install MAUI workloads
         # Use the SDK's baseline manifests (which match the installed Xcode) rather than
