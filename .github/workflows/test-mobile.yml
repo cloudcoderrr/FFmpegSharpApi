@@ -72,24 +72,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
-          script: |
-            set -eo pipefail
-            APK=$(find Tests/FFmpegSharpApi.Tests.Maui/bin -name '*-Signed.apk' | head -n1)
-            echo "Installing $APK"
-            adb install -r "$APK"
-            adb logcat -c
-            adb logcat > logcat.txt 2>&1 &
-            adb shell monkey -p com.companyname.ffmpegsharpapi.tests.maui -c android.intent.category.LAUNCHER 1
-            echo "Waiting for the test run to finish..."
-            for i in $(seq 1 180); do
-              if grep -q "##MOBILE_DONE##" logcat.txt; then break; fi
-              sleep 5
-            done
-            echo "---- markers ----"
-            grep "##MOBILE_" logcat.txt || true
-            echo "---- FFmpeg / errors ----"
-            grep -iE "FFmpeg |Unhandled|Exception|not loaded" logcat.txt | head -n 40 || true
-            grep -q "##MOBILE_DONE## PASS" logcat.txt
+          script: bash "$GITHUB_WORKSPACE/build/android-emulator-test.sh"
 
       - uses: actions/upload-artifact@v4
         if: always()
