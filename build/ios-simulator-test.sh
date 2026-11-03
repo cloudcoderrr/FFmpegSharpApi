@@ -15,7 +15,14 @@ fi
 echo "App bundle: $APP"
 
 RUNTIME="$(xcrun simctl list runtimes ios -j | python3 -c 'import sys,json; r=[x for x in json.load(sys.stdin)["runtimes"] if x["isAvailable"]]; print(r[-1]["identifier"])')"
-DEVTYPE="$(xcrun simctl list devicetypes -j | python3 -c 'import sys,json; d=[x for x in json.load(sys.stdin)["devicetypes"] if "iPhone" in x["name"]]; print(d[-1]["identifier"])')"
+DEVTYPE="$(xcrun simctl list devicetypes -j | python3 -c '
+import sys, json, re
+d = [x for x in json.load(sys.stdin)["devicetypes"] if "iPhone" in x["name"]]
+def ver(x):
+    m = re.search(r"iPhone (\d+)", x["name"])
+    return int(m.group(1)) if m else 0
+d.sort(key=ver)
+print(d[-1]["identifier"])')"
 echo "Runtime=$RUNTIME DeviceType=$DEVTYPE"
 
 UDID="$(xcrun simctl create ffmpeg-test "$DEVTYPE" "$RUNTIME")"
