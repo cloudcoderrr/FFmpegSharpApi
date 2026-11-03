@@ -138,7 +138,7 @@ jobs:
           set -euo pipefail
           FLAGS=()
           [ "${PRERELEASE:-true}" = "true" ] && FLAGS+=(--prerelease)
-          NOTES="FFmpeg 9.0.1 for .NET: managed bindings plus native binaries for Windows, Linux, macOS, Android, iOS and Mac Catalyst. LGPL v3 on every platform; GPL v3 where available. See the README for usage."
+          NOTES="FFmpeg 9.0.1 for .NET: managed bindings plus native binaries for Windows, Linux, macOS, Android, iOS and Mac Catalyst. Both LGPL v3 and GPL v3 flavours are provided for every platform. See the README for usage."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/*.nupkg --repo "$GITHUB_REPOSITORY" --clobber
           else
