@@ -82,7 +82,7 @@
 	<PropertyGroup>
 		<FFmpegTestDataZip>$(MSBuildProjectDirectory)/obj/ffmpeg-testdata.zip</FFmpegTestDataZip>
 	</PropertyGroup>
-	<Target Name="BundleTestData" BeforeTargets="BeforeBuild;CollectMauiAssets">
+	<Target Name="BundleTestData" BeforeTargets="BeforeBuild;CollectMauiAssets" Condition="!Exists('$(FFmpegTestDataZip)')">
 		<MakeDir Directories="$(MSBuildProjectDirectory)/obj" />
 		<ZipDirectory SourceDirectory="$(MSBuildThisFileDirectory)..\Data" DestinationFile="$(FFmpegTestDataZip)" Overwrite="true" />
 	</Target>

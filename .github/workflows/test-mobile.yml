@@ -128,6 +128,15 @@ jobs:
           echo "FFMPEG_XCFRAMEWORK=$XCF" >> "$GITHUB_ENV"
           echo "xcframework: $XCF"
 
+      - name: Pre-bundle the fixture data
+        run: |
+          set -euo pipefail
+          MAUI="$GITHUB_WORKSPACE/Tests/FFmpegSharpApi.Tests.Maui"
+          mkdir -p "$MAUI/obj"
+          rm -f "$MAUI/obj/ffmpeg-testdata.zip"
+          (cd "$GITHUB_WORKSPACE/Tests/Data" && zip -r -q "$MAUI/obj/ffmpeg-testdata.zip" .)
+          ls -l "$MAUI/obj/ffmpeg-testdata.zip"
+
       - name: Build iOS simulator app
         run: |
           set -euo pipefail
