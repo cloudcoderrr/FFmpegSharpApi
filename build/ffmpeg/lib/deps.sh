@@ -98,7 +98,7 @@ _dep_libxml2() {
 _dep_x264() {
   clone_component x264 "$X264_REPO" "$X264_REF" "$WORK/x264"
   apply_patches x264 "$WORK/x264" "$REPO_ROOT/patches"
-  local hostflag=() crossflag=() asflag=()
+  local hostflag=() crossflag=() asflag=() asmflag=()
   [ -n "$HOST_TRIPLE" ] && [ "$FF_CROSS_COMPILE" = 1 ] && hostflag=(--host="$HOST_TRIPLE")
   [ -n "$FF_CROSS_PREFIX" ] && crossflag=(--cross-prefix="$FF_CROSS_PREFIX")
   # On Apple arm64/arm the assembler is clang (not nasm). x264 compiles its .S
@@ -110,11 +110,15 @@ _dep_x264() {
   if [ "${APPLE:-0}" = 1 ] && { [ "$ARCH" = arm64 ] || [ "$ARCH" = arm ]; }; then
     asflag=(--extra-asflags="$TOOL_CFLAGS")
   fi
+  # x264's 32-bit x86 inline assembly exhausts the register allocator under
+  # -fPIC with clang (the PIC base register leaves too few GPRs), crashing the
+  # compiler on the i686 target. Disable asm there; x86_64/arm are unaffected.
+  case "$ARCH" in x86|i686|i386) asmflag=(--disable-asm) ;; esac
   ( cd "$WORK/x264"
     CC="$CC" CXX="$CXX" AR="$AR" RANLIB="$RANLIB" STRIP="$STRIP" \
     CFLAGS="$TOOL_CFLAGS" LDFLAGS="$TOOL_LDFLAGS" \
     ./configure --prefix="$PREFIX" --enable-static --enable-pic \
-      --disable-cli --disable-opencl ${hostflag[@]+"${hostflag[@]}"} ${crossflag[@]+"${crossflag[@]}"} ${asflag[@]+"${asflag[@]}"}
+      --disable-cli --disable-opencl ${hostflag[@]+"${hostflag[@]}"} ${crossflag[@]+"${crossflag[@]}"} ${asflag[@]+"${asflag[@]}"} ${asmflag[@]+"${asmflag[@]}"}
     make -j"$(ncpu)"
     make install )
 }
